@@ -1,0 +1,10 @@
+{
+  "protocol": "state-probe-v4",
+  "run_ids": [
+    "1b62ebbc316d"
+  ],
+  "sha256": {
+    "1b62ebbc316d.json": "c50231360180c09de5aee8a175a741e427b55793406ce2d16ff751dd2ab3cc13"
+  },
+  "scope": "Engineering smoke of token allowance enforcement, not a method comparison"
+}

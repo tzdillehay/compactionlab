@@ -256,6 +256,7 @@ def _run_experiment(store, backend, config, data_dir, progress):
                     else:
                         if memory_error:
                             raise ValueError(memory_error)
+                        retrieval_start = time.perf_counter()
                         retrieval = store.context(
                             namespace,
                             ContextRequest(
@@ -264,6 +265,7 @@ def _run_experiment(store, backend, config, data_dir, progress):
                             token_budget=config.token_budget,
                             counter=counter,
                         )
+                        trial["retrieval_seconds"] = round(time.perf_counter() - retrieval_start, 6)
                         trial["retrieval"] = retrieval
                         context = retrieval["text"]
                     trial["context"] = context

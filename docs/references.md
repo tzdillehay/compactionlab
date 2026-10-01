@@ -11,6 +11,11 @@
 - [Ollama](https://github.com/ollama/ollama): local model runtime.
 - [TypeSafe / Jev](https://docs.typesafe.ai/cookbooks/rerank_typesafe): possible future decision-model reranking adapter.
 - [TRACE](https://arxiv.org/abs/2608.06503): related paired-continuation compaction evaluation.
+- [LongMemEval](https://github.com/xiaowu0162/LongMemEval): knowledge updates, temporal reasoning,
+  multi-session recall and abstention, with oracle-source controls.
+- [LongMemEval-V2](https://github.com/xiaowu0162/LongMemEval-V2): agent-trajectory memory,
+  dynamic state, workflow knowledge, and accuracy/query-latency evaluation. A candidate external
+  validation harness; CompactionLab has not run it or reproduced its results.
 
 CompactionLab original code and synthetic fixtures use Apache-2.0. No source code or weights from
 these projects are copied into the original implementation. Installed dependencies have their

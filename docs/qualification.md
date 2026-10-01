@@ -82,6 +82,11 @@ reasoning-token count is inferred. Length cutoffs, capacity violations, accounti
 schema failures and backend failures are retained without retries or repair. Calibrated input
 plus the configured output reserve must fit the context capacity before inference starts.
 
+Calibrated preflight and rendered-input audits apply to qualification calls and to receiver calls
+in token-mode comparisons. Comparison writers retain runtime-reported costs, but do not yet use
+calibrated input preflight. The current writer fixtures are short; longer-history studies must add
+writer preflight before treating extraction failures as compaction failures.
+
 ## Historical token allowances
 
 ```sh
@@ -95,6 +100,8 @@ relationships in that value count. Recent history admits a contiguous suffix of 
 record retrieval admits entire dependency groups; over-budget summaries are retained as writer
 errors. No string is truncated in the middle. Token mode replaces the historical byte ceiling.
 Full history remains an unbounded historical reference, subject to actual runtime capacity.
+The dashboard also offers a 128-token engineering stress smoke: the original short histories
+exceed that allowance, but this is still not a long-horizon compaction benchmark.
 
 This is an equal historical-token allowance, not an equal total input or output cost. System
 instructions, current request, output contract and chat-template overhead are separately visible;

@@ -17,6 +17,16 @@ handoff directions, same-model controls and two byte ceilings. Structured memory
 an advantage. Receiver capability, extraction errors and metadata overhead remain visible failure
 sources. Raw traces and earlier unsuccessful contract-development runs are included.
 
+Version 0.2 adds receiver qualification, independently configurable writer/reader reasoning,
+and calibrated historical-token allowances. See [qualification protocol](docs/qualification.md).
+These new development studies are separate from the original byte-bounded smoke.
+The [240-probe qualification report](results/qualification-2026-10-01/README.md) separates
+factual accuracy from the completion-evidence contract. The
+[token-accounting stress smoke](results/token-budget-2026-10-01/README.md) checks real historical
+allowance enforcement through the dashboard; it does not establish a memory-method advantage.
+The current runner emits `state-probe-v4`. To reproduce the original v3 protocol, use the
+[frozen v0.1 source](https://github.com/tzdillehay/compactionlab/tree/ea70abf280a5ad513efe3147e602102df4346cd4).
+
 ## Quick start
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
@@ -38,6 +48,27 @@ No API key or paid model is required. Pulling weights requires several GB of dis
 
 Python 3.12+; macOS Apple Silicon is the initial inference target. Offline checks run on Linux and
 Windows in CI. Windows GPU inference has not been measured by this project.
+
+## Qualify a receiver and count tokens
+
+```sh
+uv run compactionlab prepare-tokenizer --model qwen3:8b
+uv run compactionlab qualify --model qwen3:8b --cases-per-workflow 20
+uv run compactionlab qualify --model qwen3:8b --cases-per-workflow 20 \
+  --thinking --output-tokens 6144
+uv run compactionlab evaluate --reader qwen3:8b --token-budget 512
+```
+
+Tokenizer preparation explicitly downloads official tokenizer data and calibrates it against the
+installed model/runtime. Evaluation downloads nothing. Qualification compares full history with
+an annotated source subset, includes both completed and unfinished tasks, and supplies the same
+budget calculator to both conditions. At least 20 full-history cases per workflow and 90% strict
+success are required; errors count as failures. These are parameterized state probes, not actual
+agent execution. The dashboard exposes qualification, thinking and token-allowance controls.
+
+Token budgets count the serialized historical context, including metadata and escaping. Full
+prompt token counts are audited against the runtime. Model/template changes fail closed until
+recalibration. This supported Qwen chat renderer is not a general tokenizer for every LLM.
 
 ## Run the test without the interface
 
@@ -75,7 +106,13 @@ For an MCP-compatible client, configure this stdio server (substitute your absol
   "mcpServers": {
     "compactionlab": {
       "command": "uv",
-      "args": ["--directory", "/absolute/path/compactionlab", "run", "compactionlab", "mcp"]
+      "args": [
+        "--directory",
+        "/absolute/path/compactionlab",
+        "run",
+        "compactionlab",
+        "mcp"
+      ]
     }
   }
 }

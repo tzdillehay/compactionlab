@@ -22,6 +22,7 @@ from compactionlab.schemas import (
     WriteBatch,
 )
 from compactionlab.store import RevisionConflict, Store
+from compactionlab.tokens import load_counter
 
 
 def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
@@ -131,6 +132,8 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
                 raise ValueError(
                     "Choose installed local models; the service never downloads weights"
                 )
+            if config.token_budget is not None:
+                load_counter(data_dir, config.reader_model, backend.manifest(config.reader_model))
         finally:
             backend.close()
         if not busy.acquire(blocking=False):
@@ -152,6 +155,7 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
         try:
             if config.model not in {model["name"] for model in backend.models()}:
                 raise ValueError("Choose an installed local model")
+            load_counter(data_dir, config.model, backend.manifest(config.model))
         finally:
             backend.close()
         if not busy.acquire(blocking=False):

@@ -1,0 +1,25 @@
+{
+  "protocol": "qualification-v3",
+  "run_ids": [
+    "07deef2b5d38",
+    "45fa23337531"
+  ],
+  "sha256": {
+    "07deef2b5d38.json": "af3082b89906a0e55413e31688c3990503dfe0c884839ce12f95b23c0a65914c",
+    "45fa23337531.json": "3d9eba4bd19ef1e0850cfea03bbaf8938275caf3c319e4254e33dd6bfa58d9d2",
+    "development/f156fab3474d.json": "d7ac724df9d91aa869a81a3ea4268629cbdf5f28a1868fc3240a3d0c8940e37d",
+    "development/0aef399f7db7.json": "0d55ec8f7fbc995b8770a9274abcfd5a81fcd8b49520f0074bb550b7f0f83c3a"
+  },
+  "hardware": [
+    {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    {
+      "system": "Darwin",
+      "machine": "arm64"
+    }
+  ],
+  "hardware_note": "Reference measurement: Apple M5 Pro, 24 GB unified memory, Metal backend. Windows inference was not measured.",
+  "scope": "Parameterized capability calibration, not autonomous execution"
+}
