@@ -113,7 +113,7 @@ async function loadOverview() {
       [
         "Completed runs",
         summary.completed_runs,
-        `${summary.runs} total saved runs`,
+        counted(summary.runs, "total saved run"),
       ],
       [
         "Model variants",
@@ -174,7 +174,7 @@ async function loadOverview() {
       footer.append(
         element(
           "span",
-          `${m.errors} errors · ${m.graded} graded · ${m.timed_responses} timed responses`,
+          `${counted(m.errors, "error")} · ${m.graded} graded · ${counted(m.timed_responses, "timed response")}`,
         ),
         runButton(latest, "View latest ↗"),
       );
@@ -495,7 +495,7 @@ $("namespaces").addEventListener("change", () =>
 async function loadQualifications(preferred) {
   const rows = await api("/api/qualifications");
   $("qualification-summary-value").textContent =
-    `${rows.length} saved runs · Controls, workflow gates & outcomes`;
+    `${counted(rows.length, "saved run")} · Controls, workflow gates & outcomes`;
   options(
     $("qualification-runs"),
     rows.map((r) => [
