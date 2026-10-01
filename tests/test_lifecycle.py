@@ -144,7 +144,7 @@ def test_runner_retains_writer_and_reader_errors_and_respects_lock(
     assert sum(t["status"] == "writer_error" for t in result["trials"]) == 2
     assert all(total["passed"] == 0 and total["errors"] == 2 for total in result["totals"].values())
     assert result["analysis"]["control_supported_cases"] == []
-    saved = json.loads((tmp_path / "runs" / f"{result['id']}.json").read_text())
+    saved = json.loads((tmp_path / "runs" / f"{result['id']}.json").read_text(encoding="utf-8"))
     assert saved == result
     with FileLock(tmp_path / "experiment.lock"), pytest.raises(RuntimeError, match="Another local"):
         run_lifecycle(

@@ -14,11 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_frozen_lifecycle_trace_coverage_source_fidelity_and_independent_grading():
     folder = ROOT / "results/lifecycle-2026-10-01"
-    manifest = json.loads((folder / "manifest.json").read_text())
+    manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
     for name, expected in manifest["sha256"].items():
         assert hashlib.sha256((folder / name).read_bytes()).hexdigest() == expected
     assert manifest["frozen_source_commit"] == "da4b6e6eec4d43215fb4d9162a2302747ac5bafc"
-    result = json.loads((folder / f"{manifest['run_ids'][0]}.json").read_text())
+    result = json.loads((folder / f"{manifest['run_ids'][0]}.json").read_text(encoding="utf-8"))
     config = LifecycleRequest.model_validate(result["config"])
     cases = {c.id: c for c in generate_cases(config.seed)}
     assert result["source_sha256"] == source_hashes()

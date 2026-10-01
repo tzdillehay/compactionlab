@@ -92,7 +92,7 @@ def test_public_checkout_overview_uses_frozen_evidence_without_inference(tmp_pat
     with TestClient(create_app(tmp_path, published_dir=published)) as client:
         result = client.get("/api/overview").json()
         assert result["summary"]["saved_probes"] == sum(
-            len(json.loads(p.read_text())["trials"])
+            len(json.loads(p.read_text(encoding="utf-8"))["trials"])
             for p in published.rglob("*.json")
             if len(p.stem) == 12
         )
@@ -128,7 +128,7 @@ def test_typed_state_study_has_honest_origin_and_behavior_controls(tmp_path):
         totals={"linked_current": {"planned": 2, "passed": 1, "behavior_passed": 2}},
         analysis={"control_supported_cases": ["a"], "packet_parity": {"pairs": 2, "identical": 2}},
     )
-    (folder / f"{result['id']}.json").write_text(json.dumps(result))
+    (folder / f"{result['id']}.json").write_text(json.dumps(result), encoding="utf-8")
     with TestClient(create_app(tmp_path)) as client:
         study = client.get("/api/overview").json()["studies"][0]
         assert study["id"] == "lifecycle"
