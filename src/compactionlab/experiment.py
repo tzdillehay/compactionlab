@@ -9,6 +9,8 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
+from filelock import FileLock, Timeout
+
 from compactionlab import __version__
 from compactionlab.fixtures import load_case
 from compactionlab.grading import grade
@@ -74,8 +76,17 @@ def extraction_schema(events):
 def continuation_schema(case):
     schema = Continuation.model_json_schema()
     fields = {}
+    categories = {
+        "contact_method": ["sms", "email", "phone", "unknown"],
+        "approved": ["true", "false", "unknown"],
+        "pending": ["address_confirmation", "approval_confirmation", "none", "unknown"],
+        "validation": ["passed", "pending", "failed", "unknown"],
+        "target": ["pine", "oak", "cedar", "unknown"],
+    }
     for name in case.probe_fields:
         definition = {"type": "string"}
+        if name in categories:
+            definition["enum"] = categories[name]
         if name.endswith("_cents"):
             definition["pattern"] = r"^(unknown|[0-9]+)$"
             definition["description"] = "Integer cents only; no arithmetic expressions or prose."
@@ -109,6 +120,15 @@ def bounded_events(events, budget, recent=False):
 def run_experiment(
     store: Store, backend: Ollama, config: ExperimentRequest, data_dir: Path, progress=None
 ) -> dict:
+    data_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        with FileLock(data_dir / "experiment.lock", timeout=0):
+            return _run_experiment(store, backend, config, data_dir, progress)
+    except Timeout as error:
+        raise RuntimeError("Another local experiment is running; wait for it to finish") from error
+
+
+def _run_experiment(store, backend, config, data_dir, progress):
     run_id = uuid.uuid4().hex[:12]
     destination = data_dir / "runs" / f"{run_id}.json"
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -117,7 +137,7 @@ def run_experiment(
         "status": "running",
         "created_at": datetime.now(UTC).isoformat(),
         "version": __version__,
-        "protocol": "state-probe-v2",
+        "protocol": "state-probe-v3",
         "config": config.model_dump(),
         "hardware": {"system": platform.system(), "machine": platform.machine()},
         "writer": backend.manifest(config.writer_model),

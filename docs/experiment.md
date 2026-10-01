@@ -1,6 +1,6 @@
 # First experiment: state reconstruction across model handoffs
 
-Protocol: `state-probe-v2`. This is a functional pilot, not the broader CompactionLab evaluation.
+Protocol: `state-probe-v3`. This is a functional pilot, not the broader CompactionLab evaluation.
 
 ## Question
 
@@ -44,6 +44,12 @@ to the visible event IDs, numeric fields to integer strings or unknown, and acti
 public task interface, with descriptions. These are output-contract changes, not supplied answers.
 The initial run is retained separately and must not be pooled with v2 results. Graders and task
 histories are unchanged. V2 is still a development protocol, not a held-out evaluation.
+
+Version 3 also defines categorical field vocabularies (for example address_confirmation versus
+approval_confirmation) instead of relying on exact matching of unrestricted prose. Every possible
+category remains available regardless of memory condition. This avoids scoring equivalent phrases
+as different states; no correct category is supplied. V1 and V2 development runs are retained
+separately. V3 comparisons are frozen for the first smoke report, not a statistical evaluation.
 
 The same receiving model answers five fresh requests:
 

@@ -1,5 +1,8 @@
 import json
 
+import pytest
+from filelock import FileLock
+
 from compactionlab.experiment import continuation_schema, extraction_schema, run_experiment
 from compactionlab.fixtures import load_case
 from compactionlab.schemas import (
@@ -59,7 +62,7 @@ def test_fresh_conditions_share_contract_and_failures_are_retained(tmp_path):
         ),
         tmp_path,
     )
-    assert result["protocol"] == "state-probe-v2"
+    assert result["protocol"] == "state-probe-v3"
     assert len(result["trials"]) == 5
     assert all(t["status"] == "graded" and not t["grade"]["passed"] for t in result["trials"])
     calls = [call for call in backend.calls if call["model"] == "reader"]
@@ -97,3 +100,26 @@ def test_schema_contracts_constrain_format_without_supplying_answers():
     allowed = writer_schema["$defs"]["MemoryRecord"]["properties"]["source_ids"]["items"]["enum"]
     assert set(allowed) == {event.id for event in case.events}
     assert "user" not in allowed
+
+
+def test_categorical_contracts_offer_alternatives_not_the_correct_answer():
+    schema = continuation_schema(load_case("conversation"))
+    fields = schema["properties"]["facts"]["properties"]
+    assert fields["approved"]["enum"] == ["true", "false", "unknown"]
+    assert fields["pending"]["enum"] == [
+        "address_confirmation",
+        "approval_confirmation",
+        "none",
+        "unknown",
+    ]
+
+
+def test_experiments_are_serialized_across_clients(tmp_path):
+    with FileLock(tmp_path / "experiment.lock"):
+        with pytest.raises(RuntimeError, match="Another local experiment"):
+            run_experiment(
+                Store(tmp_path / "db"),
+                RecordingBackend(),
+                ExperimentRequest(cases=["conversation"]),
+                tmp_path,
+            )

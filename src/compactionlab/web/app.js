@@ -1,20 +1,221 @@
-const $ = id => document.getElementById(id);
-const labels = {full_history:'Full history',recent_history:'Recent history',summary:'LLM summary',plain:'Plain records',structured:'State + evidence'};
+const $ = (id) => document.getElementById(id);
+const labels = {
+  full_history: "Full history",
+  recent_history: "Recent history",
+  summary: "LLM summary",
+  plain: "Plain records",
+  structured: "State + evidence",
+};
 let activeJob = null;
 async function api(path, body) {
-  const response = await fetch(path, body === undefined ? {} : {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const response = await fetch(
+    path,
+    body === undefined
+      ? {}
+      : {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+  );
   const result = await response.json();
-  if (!response.ok) throw new Error(typeof result.detail === 'string' ? result.detail : JSON.stringify(result.detail));
+  if (!response.ok)
+    throw new Error(
+      typeof result.detail === "string"
+        ? result.detail
+        : JSON.stringify(result.detail),
+    );
   return result;
 }
-function cell(row, text, className='') {const td=document.createElement('td');td.textContent=text;td.className=className;row.append(td);return td;}
-function options(select, rows, selected) {select.replaceChildren();for (const [value,text] of rows){const option=document.createElement('option');option.value=value;option.textContent=text;select.append(option);}if(selected)select.value=selected;}
-async function loadModels(){try{const result=await api('/api/models');const rows=result.models.map(m=>[m.name,m.name]);options($('writer'),rows,'qwen3:4b');options($('reader'),rows,'qwen3:8b');$('connection').textContent=`${rows.length} local models available`;$('start').disabled=!rows.length;}catch(error){$('connection').textContent='Start Ollama to use local inference';$('status').textContent=error.message;$('start').disabled=true;}}
-async function loadRuns(preferred){const rows=await api('/api/runs');options($('runs'),rows.map(r=>[r.id,`${r.config.writer_model} → ${r.config.reader_model} · ${r.id}`]),preferred||rows[0]?.id);if(rows.length)await showRun($('runs').value);}
-async function showRun(id){const result=await api(`/api/runs/${id}`);$('run-meta').textContent=`${result.status} · ${result.config.byte_budget.toLocaleString()} historical bytes · ${result.trials.length} probes · ${result.config.writer_model} → ${result.config.reader_model}`;$('totals').replaceChildren();for(const [condition,total] of Object.entries(result.totals||{})){const row=document.createElement('tr');cell(row,labels[condition]);cell(row,`${total.passed} / ${total.graded}`,total.passed===total.graded&&total.graded?'pass':'fail');cell(row,total.mean_fact_accuracy===null?'—':`${Math.round(total.mean_fact_accuracy*100)}%`);cell(row,total.errors);$('totals').append(row);}$('trials').replaceChildren();for(const trial of result.trials){const detail=document.createElement('details');const summary=document.createElement('summary');const passed=trial.grade?.passed;summary.textContent=`${trial.case} · ${labels[trial.condition]} · ${trial.status==='graded'?(passed?'PASS':'FAIL'):trial.status} · ${trial.context_bytes??0} bytes`;summary.className=passed?'pass':'fail';detail.append(summary);const pre=document.createElement('pre');pre.textContent=JSON.stringify({context:trial.context,answer:trial.model?.parsed,grade:trial.grade,error:trial.error,tokens:trial.model?.prompt_tokens,wall_seconds:trial.model?.wall_seconds},null,2);detail.append(pre);$('trials').append(detail);}const link=document.createElement('a');link.href=`/api/runs/${id}`;link.target='_blank';link.textContent='Inspect complete run JSON ↗';$('trials').append(link);}
-async function loadNamespaces(){const rows=await api('/api/namespaces');options($('namespaces'),rows.map(n=>[n.name,`${n.name} · revision ${n.revision}`]),rows.at(-1)?.name);if(rows.length)await showNamespace($('namespaces').value);}
-async function showNamespace(name){const state=await api(`/api/namespaces/${encodeURIComponent(name)}`);$('records').replaceChildren();for(const record of state.records){const row=document.createElement('tr');cell(row,record.id,'record-id');cell(row,`${record.kind} / ${record.effective_state}`,record.effective_state==='superseded'?'muted':'pass');cell(row,record.text);const scope=cell(row,`${record.applies_to||'Project'} · ${record.source_ids.join(', ')}`);const detail=document.createElement('details');const summary=document.createElement('summary');summary.textContent='Inspect sources & links';detail.append(summary);const pre=document.createElement('pre');pre.textContent=JSON.stringify({supersedes:record.supersedes,depends_on:record.depends_on,sources:state.events.filter(e=>record.source_ids.includes(e.id))},null,2);detail.append(pre);scope.append(detail);$('records').append(row);}}
-$('experiment').addEventListener('submit',async event=>{event.preventDefault();$('start').disabled=true;$('status').textContent='Starting local comparison…';try{const cases=$('cases').value==='all'?['release_handoff','conversation','budgeting']:[$('cases').value];const job=await api('/api/jobs',{writer_model:$('writer').value,reader_model:$('reader').value,cases,repetitions:Number($('repetitions').value),byte_budget:Number($('budget').value),seed:42});activeJob=job.job_id;poll();}catch(error){$('status').textContent=error.message;$('start').disabled=false;}});
-async function poll(){if(!activeJob)return;try{const job=await api(`/api/jobs/${activeJob}`);$('status').textContent=`${job.status} · ${job.trials||0} probes saved. Model writing and loading can take a moment.`;if(job.status==='completed'||job.status==='failed'){activeJob=null;$('start').disabled=false;if(job.error)$('status').textContent=job.error;await loadRuns(job.run_id);await loadNamespaces();}else{if(job.run_id)await showRun(job.run_id);setTimeout(poll,2000);}}catch(error){activeJob=null;$('status').textContent=error.message;$('start').disabled=false;}}
-$('runs').addEventListener('change',()=>showRun($('runs').value));$('namespaces').addEventListener('change',()=>showNamespace($('namespaces').value));
-Promise.all([loadModels(),loadRuns(),loadNamespaces()]).catch(error=>{$('status').textContent=error.message;});
+function cell(row, text, className = "") {
+  const td = document.createElement("td");
+  td.textContent = text;
+  td.className = className;
+  row.append(td);
+  return td;
+}
+function options(select, rows, selected) {
+  select.replaceChildren();
+  for (const [value, text] of rows) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = text;
+    select.append(option);
+  }
+  if (selected) select.value = selected;
+}
+async function loadModels() {
+  try {
+    const result = await api("/api/models");
+    const rows = result.models.map((m) => [m.name, m.name]);
+    options($("writer"), rows, "qwen3:4b");
+    options($("reader"), rows, "qwen3:8b");
+    $("connection").textContent = `${rows.length} local models available`;
+    $("start").disabled = !rows.length;
+  } catch (error) {
+    $("connection").textContent = "Start Ollama to use local inference";
+    $("status").textContent = error.message;
+    $("start").disabled = true;
+  }
+}
+async function loadRuns(preferred) {
+  const rows = await api("/api/runs");
+  options(
+    $("runs"),
+    rows.map((r) => [
+      r.id,
+      `${r.config.writer_model} → ${r.config.reader_model} · ${r.id}`,
+    ]),
+    preferred || rows[0]?.id,
+  );
+  if (rows.length) await showRun($("runs").value);
+}
+async function showRun(id) {
+  const result = await api(`/api/runs/${id}`);
+  $("run-meta").textContent =
+    `${result.status} · ${result.config.byte_budget.toLocaleString()} historical bytes · ${result.trials.length} probes · ${result.config.writer_model} → ${result.config.reader_model}`;
+  $("totals").replaceChildren();
+  for (const [condition, total] of Object.entries(result.totals || {})) {
+    const row = document.createElement("tr");
+    cell(row, labels[condition]);
+    cell(
+      row,
+      `${total.passed} / ${total.graded}`,
+      total.passed === total.graded && total.graded ? "pass" : "fail",
+    );
+    cell(
+      row,
+      total.mean_fact_accuracy === null
+        ? "—"
+        : `${Math.round(total.mean_fact_accuracy * 100)}%`,
+    );
+    cell(row, total.errors);
+    $("totals").append(row);
+  }
+  $("trials").replaceChildren();
+  for (const trial of result.trials) {
+    const detail = document.createElement("details");
+    const summary = document.createElement("summary");
+    const passed = trial.grade?.passed;
+    summary.textContent = `${trial.case} · ${labels[trial.condition]} · ${trial.status === "graded" ? (passed ? "PASS" : "FAIL") : trial.status} · ${trial.context_bytes ?? 0} bytes`;
+    summary.className = passed ? "pass" : "fail";
+    detail.append(summary);
+    const pre = document.createElement("pre");
+    pre.textContent = JSON.stringify(
+      {
+        context: trial.context,
+        answer: trial.model?.parsed,
+        grade: trial.grade,
+        error: trial.error,
+        tokens: trial.model?.prompt_tokens,
+        wall_seconds: trial.model?.wall_seconds,
+      },
+      null,
+      2,
+    );
+    detail.append(pre);
+    $("trials").append(detail);
+  }
+  const link = document.createElement("a");
+  link.href = `/api/runs/${id}`;
+  link.target = "_blank";
+  link.textContent = "Inspect complete run JSON ↗";
+  $("trials").append(link);
+}
+async function loadNamespaces() {
+  const rows = await api("/api/namespaces");
+  options(
+    $("namespaces"),
+    rows.map((n) => [n.name, `${n.name} · revision ${n.revision}`]),
+    rows.at(-1)?.name,
+  );
+  if (rows.length) await showNamespace($("namespaces").value);
+}
+async function showNamespace(name) {
+  const state = await api(`/api/namespaces/${encodeURIComponent(name)}`);
+  $("records").replaceChildren();
+  for (const record of state.records) {
+    const row = document.createElement("tr");
+    cell(row, record.id, "record-id");
+    cell(
+      row,
+      `${record.kind} / ${record.effective_state}`,
+      record.effective_state === "superseded" ? "muted" : "pass",
+    );
+    cell(row, record.text);
+    const scope = cell(
+      row,
+      `${record.applies_to || "Project"} · ${record.source_ids.join(", ")}`,
+    );
+    const detail = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = "Inspect sources & links";
+    detail.append(summary);
+    const pre = document.createElement("pre");
+    pre.textContent = JSON.stringify(
+      {
+        supersedes: record.supersedes,
+        depends_on: record.depends_on,
+        sources: state.events.filter((e) => record.source_ids.includes(e.id)),
+      },
+      null,
+      2,
+    );
+    detail.append(pre);
+    scope.append(detail);
+    $("records").append(row);
+  }
+}
+$("experiment").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  $("start").disabled = true;
+  $("status").textContent = "Starting local comparison…";
+  try {
+    const cases =
+      $("cases").value === "all"
+        ? ["release_handoff", "conversation", "budgeting"]
+        : [$("cases").value];
+    const job = await api("/api/jobs", {
+      writer_model: $("writer").value,
+      reader_model: $("reader").value,
+      cases,
+      repetitions: Number($("repetitions").value),
+      byte_budget: Number($("budget").value),
+      seed: 42,
+    });
+    activeJob = job.job_id;
+    poll();
+  } catch (error) {
+    $("status").textContent = error.message;
+    $("start").disabled = false;
+  }
+});
+async function poll() {
+  if (!activeJob) return;
+  try {
+    const job = await api(`/api/jobs/${activeJob}`);
+    $("status").textContent =
+      `${job.status} · ${job.trials || 0} probes saved. Model writing and loading can take a moment.`;
+    if (job.status === "completed" || job.status === "failed") {
+      activeJob = null;
+      $("start").disabled = false;
+      if (job.error) $("status").textContent = job.error;
+      await loadRuns(job.run_id);
+      await loadNamespaces();
+    } else {
+      if (job.run_id) await showRun(job.run_id);
+      setTimeout(poll, 2000);
+    }
+  } catch (error) {
+    activeJob = null;
+    $("status").textContent = error.message;
+    $("start").disabled = false;
+  }
+}
+$("runs").addEventListener("change", () => showRun($("runs").value));
+$("namespaces").addEventListener("change", () =>
+  showNamespace($("namespaces").value),
+);
+Promise.all([loadModels(), loadRuns(), loadNamespaces()]).catch((error) => {
+  $("status").textContent = error.message;
+});

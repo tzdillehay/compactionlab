@@ -1,6 +1,116 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CompactionLab API</title><link rel="stylesheet" href="/static/style.css"></head><body><main><header><a class="brand" href="/">◈ CompactionLab</a><a href="/openapi.json">OpenAPI schema ↗</a></header><section class="intro"><p class="eyebrow">LOCAL CONTEXT SERVICE</p><h1>API reference</h1><p class="lede">Append immutable source events and records, then retrieve a bounded context bundle. HTTP and MCP use the same store.</p></section><section class="panel"><h2>Endpoints</h2><table><thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td>GET</td><td>/api/health</td><td>Service health</td></tr><tr><td>GET</td><td>/api/models</td><td>Installed Ollama models</td></tr><tr><td>GET</td><td>/api/namespaces</td><td>List task scopes</td></tr><tr><td>GET</td><td>/api/namespaces/{name}</td><td>Inspect records and original sources</td></tr><tr><td>POST</td><td>/api/namespaces/{name}/records</td><td>Atomic version-checked append</td></tr><tr><td>POST</td><td>/api/namespaces/{name}/context</td><td>Retrieve plain or structured context</td></tr><tr><td>POST</td><td>/api/jobs</td><td>Start a local comparison</td></tr><tr><td>GET</td><td>/api/jobs/{id}</td><td>Observe job progress</td></tr><tr><td>GET</td><td>/api/runs</td><td>List saved runs</td></tr><tr><td>GET</td><td>/api/runs/{id}</td><td>Read full run data</td></tr></tbody></table></section><section class="panel"><h2>Write example</h2><pre>{
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CompactionLab API</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <a class="brand" href="/">◈ CompactionLab</a
+        ><a href="/openapi.json">OpenAPI schema ↗</a>
+      </header>
+      <section class="intro">
+        <p class="eyebrow">LOCAL CONTEXT SERVICE</p>
+        <h1>API reference</h1>
+        <p class="lede">
+          Append immutable source events and records, then retrieve a bounded
+          context bundle. HTTP and MCP use the same store.
+        </p>
+      </section>
+      <section class="panel">
+        <h2>Endpoints</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Path</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GET</td>
+              <td>/api/health</td>
+              <td>Service health</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/models</td>
+              <td>Installed Ollama models</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/namespaces</td>
+              <td>List task scopes</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/namespaces/{name}</td>
+              <td>Inspect records and original sources</td>
+            </tr>
+            <tr>
+              <td>POST</td>
+              <td>/api/namespaces/{name}/records</td>
+              <td>Atomic version-checked append</td>
+            </tr>
+            <tr>
+              <td>POST</td>
+              <td>/api/namespaces/{name}/context</td>
+              <td>Retrieve plain or structured context</td>
+            </tr>
+            <tr>
+              <td>POST</td>
+              <td>/api/jobs</td>
+              <td>Start a local comparison</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/jobs/{id}</td>
+              <td>Observe job progress</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/runs</td>
+              <td>List saved runs</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/runs/{id}</td>
+              <td>Read full run data</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="panel">
+        <h2>Write example</h2>
+        <pre>
+{
   "expected_revision": 0,
   "events": [{"id": "user-1", "source": "user", "text": "Contact me by SMS."}],
   "records": [{"id": "contact-1", "kind": "requirement", "text": "Contact by SMS",
                "source_ids": ["user-1"]}]
-}</pre><p>POST this JSON to /api/namespaces/demo/records. A stale expected_revision returns 409. Unknown references return 400 and roll back the whole batch.</p><h2>Retrieve example</h2><pre>{"query": "contact method", "mode": "structured", "byte_budget": 6000}</pre><p>POST this JSON to /api/namespaces/demo/context. The result includes text, byte count, record IDs, omitted count and snapshot revision.</p><p class="note">This service is for one trusted local user. Namespace names do not provide authentication. Records are claims, not guaranteed truths. No paid provider or arbitrary execution endpoint exists.</p></section></main></body></html>
+}</pre>
+        <p>
+          POST this JSON to /api/namespaces/demo/records. A stale
+          expected_revision returns 409. Unknown references return 400 and roll
+          back the whole batch.
+        </p>
+        <h2>Retrieve example</h2>
+        <pre>
+{"query": "contact method", "mode": "structured", "byte_budget": 6000}</pre>
+        <p>
+          POST this JSON to /api/namespaces/demo/context. The result includes
+          text, byte count, record IDs, omitted count and snapshot revision.
+        </p>
+        <p class="note">
+          This service is for one trusted local user. Namespace names do not
+          provide authentication. Records are claims, not guaranteed truths. No
+          paid provider or arbitrary execution endpoint exists.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

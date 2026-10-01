@@ -53,8 +53,9 @@ uses the pinned Python SDK 1.26 stdio implementation; it is not a claim of suppo
 MCP revision. An actual SDK client/server round trip is in the offline checks.
 
 The dashboard is packaged static HTML/CSS/JavaScript; it needs no Node server or remote assets.
-Only one dashboard experiment can run at a time. Direct CLI users must avoid running additional
-evaluations concurrently if they want interpretable timing. Reader calls are sequential with a
+An operating-system file lock allows one experiment per data directory across HTTP and CLI.
+Users with different data directories must avoid concurrent evaluations to preserve timing.
+Reader calls are sequential with a
 seeded randomized condition order. Writer/reader model changes can require loading weights; both
 wall time and reported load/inference time are recorded.
 
