@@ -42,6 +42,9 @@
                 <option value="6000">6,000 bytes</option>
                 <option value="2000">2,000 bytes</option>
                 <option value="1000">1,000 bytes</option>
+                <option value="t512">512 historical tokens</option>
+                <option value="t1024">1,024 historical tokens</option>
+                <option value="t2048">2,048 historical tokens</option>
               </select></label
             >
             <label
@@ -51,17 +54,97 @@
                 <option>5</option>
               </select></label
             >
+            <label
+              >Writer reasoning<select id="writer-thinking">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled · longer output allowance</option>
+              </select></label
+            >
+            <label
+              >Receiver reasoning<select id="reader-thinking">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled · longer output allowance</option>
+              </select></label
+            >
             <button id="start" type="submit">Run locally ↗</button>
           </div>
         </form>
         <p class="note">
-          Fresh state probes · Five memory methods · No paid APIs. Equal byte
-          ceilings are not equal token budgets. Full history is an uncompressed
-          reference.
+          Fresh state probes · Five memory methods · No paid APIs. Choose byte
+          or calibrated historical-token allowances. Full history is an
+          uncompressed reference; total model input and output costs are
+          recorded separately.
         </p>
         <div id="status" role="status" aria-live="polite">
           Ready when local models are available.
         </div>
+      </section>
+      <section class="panel">
+        <div class="section-title">
+          <h2>Qualify a receiving model</h2>
+          <span class="muted">Capability before memory claims</span>
+        </div>
+        <form id="qualification">
+          <div class="controls">
+            <label
+              >Receiving model<select id="qualification-model" required></select
+            ></label>
+            <label
+              >Reasoning<select id="qualification-thinking">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled · 6,144 output tokens</option>
+              </select></label
+            >
+            <label
+              >Cases per workflow<select id="qualification-count">
+                <option value="20">20 · qualification study</option>
+                <option value="4">4 · smoke only</option>
+              </select></label
+            >
+            <label
+              >Budget calculator<select id="qualification-calculator">
+                <option value="true">Provide draft calculation</option>
+                <option value="false">Model arithmetic only</option>
+              </select></label
+            >
+            <button id="qualification-start" type="submit">
+              Run qualification ↗
+            </button>
+          </div>
+        </form>
+        <p class="note">
+          Three workflows · Full history and an annotated source subset · Both
+          completed and unfinished tasks. Qualification requires at least 20
+          cases per workflow and 90% full-history success. A prepared tokenizer
+          is required.
+        </p>
+        <p id="qualification-status" class="status">
+          Saved qualification results are available below.
+        </p>
+        <select id="qualification-runs" aria-label="Select qualification run">
+          <option>No qualification runs</option>
+        </select>
+        <p id="qualification-meta" class="muted"></p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Workflow</th>
+                <th>Full history</th>
+                <th>Minimal sources</th>
+                <th>Gate</th>
+              </tr>
+            </thead>
+            <tbody id="qualification-totals"></tbody>
+          </table>
+        </div>
+        <p class="note">
+          The minimal-source condition is a diagnostic control. These are
+          parameterized state probes; delivery and payment receipts are
+          simulated, and the calculator receives fixture inputs. They do not
+          test autonomous tool selection or actual task execution.
+        </p>
+        <div id="qualification-trials"></div>
       </section>
       <section class="panel">
         <div class="section-title">

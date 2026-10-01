@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import httpx
+from filelock import FileLock, Timeout
 from tokenizers import Tokenizer
 
 UPSTREAM = {f"qwen3:{size}b": f"Qwen/Qwen3-{size}B" for size in (4, 8, 14)}
@@ -64,6 +65,17 @@ def load_counter(data_dir, model, runtime_manifest):
 
 
 def prepare_tokenizer(backend, model, data_dir):
+    Path(data_dir).mkdir(parents=True, exist_ok=True)
+    try:
+        with FileLock(Path(data_dir) / "experiment.lock", timeout=0):
+            return _prepare_tokenizer(backend, model, data_dir)
+    except Timeout as error:
+        raise RuntimeError(
+            "Another local experiment is running; wait before calibration"
+        ) from error
+
+
+def _prepare_tokenizer(backend, model, data_dir):
     if model not in UPSTREAM:
         raise ValueError("Tokenizer preparation currently supports official qwen3:4b, :8b and :14b")
     runtime = backend.manifest(model)

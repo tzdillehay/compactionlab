@@ -1,6 +1,6 @@
 # Receiver qualification and token accounting
 
-This first research batch adds configurable inference, `qualification-v2`, and
+This first research batch adds configurable inference, `qualification-v3`, and
 `state-probe-v4`. The published v3 smoke traces are unchanged and must not be pooled with v4.
 
 ## Prepare a tokenizer
@@ -61,7 +61,10 @@ The initial `qualification-v1` development smoke required an exact evidence-ID l
 some legitimate supporting artifact/user references; it also required declaring completion
 as a next action when no work remained. V2 corrects those grading contracts and prohibits
 repeating executed payments. The development trace is retained separately with its original
-grades. Its results are not pooled with the frozen v2 study.
+grades. V2's larger development run also rejected a truthful unchanged-revision assistant
+recap even when the mandatory test observation was cited. V3 allows that redundant current
+reference while still requiring the tool observation and rejecting stale revision references.
+Both development runs retain their original grades, separate from the frozen v3 study.
 
 ## Inference configuration
 

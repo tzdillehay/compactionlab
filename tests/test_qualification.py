@@ -51,6 +51,22 @@ def test_evidence_requires_current_observation_but_allows_supporting_sources():
         ]
 
 
+def test_unchanged_completion_recap_does_not_replace_test_observation():
+    case = generate_cases(
+        QualificationRequest(cases_per_workflow=4, workflows=["release_handoff"])
+    )[3]
+    answer = Continuation(
+        facts=case.expected_facts,
+        next_actions=[],
+        complete=True,
+        evidence_ids=["test-A", "completion-A", "artifact-current"],
+    )
+    assert grade_qualification(case, answer)["passed"]
+    assert not grade_qualification(
+        case, answer.model_copy(update={"evidence_ids": ["completion-A"]})
+    )["passed"]
+
+
 def test_public_calculator_agrees_with_independent_reference():
     rng = random.Random(420)
     for _ in range(100):

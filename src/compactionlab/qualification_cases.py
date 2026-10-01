@@ -376,6 +376,8 @@ def grade_qualification(case, answer):
         allowed_evidence.update(case.minimal_ids)
         if case.workflow == "release_handoff" and case.expected_facts["revision"] == "A":
             allowed_evidence.add("requirement-A")
+            # Redundant current recap, never a substitute for the required test-A.
+            allowed_evidence.add("completion-A")
     cited = set(answer.evidence_ids)
     checks.update(
         {

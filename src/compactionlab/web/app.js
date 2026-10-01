@@ -7,6 +7,18 @@ const labels = {
   structured: "State + evidence",
 };
 let activeJob = null;
+let qualificationJob = null;
+function inference(thinking) {
+  return {
+    thinking,
+    context_tokens: 8192,
+    max_output_tokens: thinking ? 6144 : 2048,
+  };
+}
+function busy(value) {
+  $("start").disabled = value;
+  $("qualification-start").disabled = value;
+}
 async function api(path, body) {
   const response = await fetch(
     path,
@@ -50,12 +62,15 @@ async function loadModels() {
     const rows = result.models.map((m) => [m.name, m.name]);
     options($("writer"), rows, "qwen3:4b");
     options($("reader"), rows, "qwen3:8b");
+    options($("qualification-model"), rows, "qwen3:8b");
     $("connection").textContent = `${rows.length} local models available`;
     $("start").disabled = !rows.length;
+    $("qualification-start").disabled = !rows.length;
   } catch (error) {
     $("connection").textContent = "Start Ollama to use local inference";
     $("status").textContent = error.message;
     $("start").disabled = true;
+    $("qualification-start").disabled = true;
   }
 }
 async function loadRuns(preferred) {
@@ -72,8 +87,11 @@ async function loadRuns(preferred) {
 }
 async function showRun(id) {
   const result = await api(`/api/runs/${id}`);
+  const allowance = result.config.token_budget
+    ? `${result.config.token_budget.toLocaleString()} historical tokens`
+    : `${result.config.byte_budget.toLocaleString()} historical bytes`;
   $("run-meta").textContent =
-    `${result.status} · ${result.protocol} · ${result.config.byte_budget.toLocaleString()} historical bytes · ${result.trials.length} probes · ${result.config.writer_model} → ${result.config.reader_model}`;
+    `${result.status} · ${result.protocol} · ${allowance} · ${result.trials.length} probes · ${result.config.writer_model} → ${result.config.reader_model}`;
   $("totals").replaceChildren();
   for (const [condition, total] of Object.entries(result.totals || {})) {
     const row = document.createElement("tr");
@@ -108,6 +126,9 @@ async function showRun(id) {
         grade: trial.grade,
         error: trial.error,
         tokens: trial.model?.prompt_tokens,
+        historical_tokens: trial.historical_tokens,
+        output_tokens: trial.model?.output_tokens,
+        prompt_accounting_match: trial.model?.prompt_accounting_match,
         wall_seconds: trial.model?.wall_seconds,
       },
       null,
@@ -170,7 +191,7 @@ async function showNamespace(name) {
 }
 $("experiment").addEventListener("submit", async (event) => {
   event.preventDefault();
-  $("start").disabled = true;
+  busy(true);
   $("status").textContent = "Starting local comparison…";
   try {
     const cases =
@@ -182,14 +203,21 @@ $("experiment").addEventListener("submit", async (event) => {
       reader_model: $("reader").value,
       cases,
       repetitions: Number($("repetitions").value),
-      byte_budget: Number($("budget").value),
+      byte_budget: $("budget").value.startsWith("t")
+        ? 6000
+        : Number($("budget").value),
+      token_budget: $("budget").value.startsWith("t")
+        ? Number($("budget").value.slice(1))
+        : null,
+      writer_settings: inference($("writer-thinking").value === "true"),
+      reader_settings: inference($("reader-thinking").value === "true"),
       seed: 42,
     });
     activeJob = job.job_id;
     poll();
   } catch (error) {
     $("status").textContent = error.message;
-    $("start").disabled = false;
+    busy(false);
   }
 });
 async function poll() {
@@ -200,9 +228,10 @@ async function poll() {
       `${job.status} · ${job.trials || 0} probes saved. Model writing and loading can take a moment.`;
     if (job.status === "completed" || job.status === "failed") {
       activeJob = null;
-      $("start").disabled = false;
+      busy(false);
       $("status").textContent =
-        job.error || `Completed · ${job.trials || 0} probes saved. Select a trial to inspect its context and response.`;
+        job.error ||
+        `Completed · ${job.trials || 0} probes saved. Select a trial to inspect its context and response.`;
       await loadRuns(job.run_id);
     } else {
       if (job.run_id) await showRun(job.run_id);
@@ -211,13 +240,124 @@ async function poll() {
   } catch (error) {
     activeJob = null;
     $("status").textContent = error.message;
-    $("start").disabled = false;
+    busy(false);
   }
 }
 $("runs").addEventListener("change", () => showRun($("runs").value));
 $("namespaces").addEventListener("change", () =>
   showNamespace($("namespaces").value),
 );
-Promise.all([loadModels(), loadRuns()]).catch((error) => {
+
+async function loadQualifications(preferred) {
+  const rows = await api("/api/qualifications");
+  options(
+    $("qualification-runs"),
+    rows.map((r) => [
+      r.id,
+      `${r.config.model} · ${r.config.settings.thinking ? "reasoning on" : "reasoning off"} · ${r.id}`,
+    ]),
+    preferred || rows[0]?.id,
+  );
+  if (rows.length) await showQualification($("qualification-runs").value);
+}
+async function showQualification(id) {
+  const result = await api(`/api/qualifications/${id}`);
+  $("qualification-meta").textContent =
+    `${result.status} · ${result.protocol} · ${result.config.model} · reasoning ${result.config.settings.thinking ? "on" : "off"} · ${result.trials.length} probes · ${result.qualified ? "meets all workflow gates" : "qualification not established"}`;
+  $("qualification-totals").replaceChildren();
+  for (const [workflow, total] of Object.entries(result.totals || {})) {
+    const row = document.createElement("tr");
+    cell(row, workflow.replaceAll("_", " "));
+    for (const condition of ["full_history", "minimal_source"]) {
+      const group = total[condition];
+      cell(
+        row,
+        `${group.passed} / ${group.planned}${group.errors ? ` · ${group.errors} errors` : ""}`,
+      );
+    }
+    cell(
+      row,
+      total.qualified ? "Qualified" : "Not qualified",
+      total.qualified ? "pass" : "fail",
+    );
+    $("qualification-totals").append(row);
+  }
+  $("qualification-trials").replaceChildren();
+  const failed = result.trials.filter(
+    (t) => t.status !== "graded" || !t.grade.passed,
+  );
+  for (const trial of failed) {
+    const detail = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = `${trial.case} · ${trial.condition} · ${trial.status === "graded" ? "FAIL" : trial.status}`;
+    summary.className = "fail";
+    const pre = document.createElement("pre");
+    pre.textContent = JSON.stringify(
+      {
+        context: trial.context,
+        answer: trial.model?.parsed,
+        grade: trial.grade,
+        error: trial.error,
+        historical_tokens: trial.historical_tokens,
+        prompt_tokens: trial.model?.prompt_tokens,
+        output_tokens: trial.model?.output_tokens,
+        accounting_match: trial.model?.prompt_accounting_match,
+      },
+      null,
+      2,
+    );
+    detail.append(summary, pre);
+    $("qualification-trials").append(detail);
+  }
+  const link = document.createElement("a");
+  link.href = `/api/qualifications/${id}`;
+  link.target = "_blank";
+  link.textContent = "Inspect all qualification outcomes and raw JSON ↗";
+  $("qualification-trials").append(link);
+}
+$("qualification").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  busy(true);
+  $("qualification-status").textContent = "Starting qualification…";
+  try {
+    const job = await api("/api/qualification/jobs", {
+      model: $("qualification-model").value,
+      cases_per_workflow: Number($("qualification-count").value),
+      calculator: $("qualification-calculator").value === "true",
+      settings: inference($("qualification-thinking").value === "true"),
+    });
+    qualificationJob = job.job_id;
+    pollQualification();
+  } catch (error) {
+    $("qualification-status").textContent = error.message;
+    busy(false);
+  }
+});
+async function pollQualification() {
+  if (!qualificationJob) return;
+  try {
+    const job = await api(`/api/jobs/${qualificationJob}`);
+    $("qualification-status").textContent =
+      `${job.status} · ${job.trials || 0} probes saved. Reasoning-enabled trials can take longer.`;
+    if (job.status === "completed" || job.status === "failed") {
+      qualificationJob = null;
+      busy(false);
+      $("qualification-status").textContent =
+        job.error || `Completed · ${job.trials} probes saved.`;
+      await loadQualifications(job.run_id);
+    } else {
+      if (job.run_id) await showQualification(job.run_id);
+      setTimeout(pollQualification, 2000);
+    }
+  } catch (error) {
+    qualificationJob = null;
+    busy(false);
+    $("qualification-status").textContent = error.message;
+  }
+}
+$("qualification-runs").addEventListener("change", () =>
+  showQualification($("qualification-runs").value),
+);
+Promise.all([loadModels(), loadRuns(), loadQualifications()]).catch((error) => {
   $("status").textContent = error.message;
 });

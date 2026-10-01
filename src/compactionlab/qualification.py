@@ -77,7 +77,7 @@ def _run(backend, config, data_dir, progress):
     cases = generate_cases(config)
     result = {
         "id": uuid.uuid4().hex[:12],
-        "protocol": "qualification-v2",
+        "protocol": "qualification-v3",
         "status": "running",
         "created_at": datetime.now(UTC).isoformat(),
         "config": config.model_dump(),
