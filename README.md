@@ -12,6 +12,11 @@ result or a claim that external memory is new. Models can extract incorrect reco
 supersession, or misuse correct context. See [experiment protocol](docs/experiment.md) and
 [architecture](docs/architecture.md).
 
+[Initial measured results](results/smoke-2026-10-01/README.md): 90 frozen state probes across both
+handoff directions, same-model controls and two byte ceilings. Structured memory has not established
+an advantage. Receiver capability, extraction errors and metadata overhead remain visible failure
+sources. Raw traces and earlier unsuccessful contract-development runs are included.
+
 ## Quick start
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
@@ -40,6 +45,7 @@ Windows in CI. Windows GPU inference has not been measured by this project.
 uv run compactionlab evaluate --writer qwen3:4b --reader qwen3:8b --repetitions 1
 uv run compactionlab evaluate --writer qwen3:8b --reader qwen3:4b --repetitions 1
 uv run compactionlab evaluate --writer qwen3:4b --reader qwen3:4b --repetitions 1
+uv run python scripts/run_smoke.py
 ```
 
 Each run saves JSON with the visible histories, model-written memories, supplied context, raw

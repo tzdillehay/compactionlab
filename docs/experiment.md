@@ -2,6 +2,11 @@
 
 Protocol: `state-probe-v3`. This is a functional pilot, not the broader CompactionLab evaluation.
 
+The frozen first matrix uses one repetition, all three cases and five conditions for each of:
+4B→8B, 8B→4B, 4B→4B and 8B→8B at 6000 bytes; plus both cross-model directions at 2000 bytes.
+That is 90 planned probes. `scripts/run_smoke.py` runs exactly this matrix. The 6000-byte
+same-model conditions are controls; they are not repeated at 2000 bytes in this small pilot.
+
 ## Question
 
 After a requirement correction or artifact change, does a fresh receiving model recover current

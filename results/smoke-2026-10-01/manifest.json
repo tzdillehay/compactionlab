@@ -1,0 +1,28 @@
+{
+  "protocol": "state-probe-v3",
+  "run_ids": [
+    "c75a14b5b339",
+    "b49511fbb2d9",
+    "15c76217ac4f",
+    "9230375b53b6",
+    "e46329f7de38",
+    "6d90b58b4498"
+  ],
+  "sha256": {
+    "c75a14b5b339.json": "931e4109cf08fbe3daa873289206f995f2826bffc3ea86d21253c032bef48321",
+    "b49511fbb2d9.json": "1139e0f098197dd72dca4418bb0275b1868fd8e2dbf6a083cbf3361e1c242550",
+    "15c76217ac4f.json": "f8a8a665703c97d0196a5d5f9a4e36113b54bbd58518385208106fd14f9863d6",
+    "9230375b53b6.json": "6ef6ab94ce459c7dbcd42540ec195cb08492d2d0812fc7507212fb21495caa3e",
+    "e46329f7de38.json": "430a2f2c2509a112f186be6308b15cd12cb8a9f9eeefd2575e630db88b31b347",
+    "6d90b58b4498.json": "fc072374d33188c395c70aad8f5fb62cb9fe2a375a96088ae312e6bc79b0467f",
+    "development/74908d6273d9.json": "0f9463e6bd3949de1876b8d24f7c3411b10e3b2f81d4b292c61718b62b5d885a",
+    "development/c6ac13bf0e01.json": "f805ba9e63142f75b44a2a90e0a4cf3cdbaaa2559d115dcf0576083624eea6bb",
+    "development/db7461b4e310.json": "f8c2a5263e29985a4fc89cf024b5740fb58f026a13d08ae149a2061b89d731c7"
+  },
+  "hardware": {
+    "processor": "Apple M5 Pro",
+    "memory_gb": 24,
+    "model_backend": "Metal"
+  },
+  "scope": "Development smoke; byte ceilings; state probes; one repetition"
+}
