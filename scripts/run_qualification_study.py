@@ -21,14 +21,14 @@ def main():
                 )
             )
 
-            def progress(result):
+            def progress(result, reasoning=thinking):
                 count = len(result["trials"])
                 if count % 10 == 0:
                     print(
                         json.dumps(
                             {
                                 "id": result["id"],
-                                "thinking": thinking,
+                                "thinking": reasoning,
                                 "trials": count,
                                 "status": result["status"],
                             }
