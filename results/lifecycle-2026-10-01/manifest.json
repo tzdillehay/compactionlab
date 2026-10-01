@@ -1,0 +1,28 @@
+{
+  "protocol": "lifecycle-v1",
+  "run_ids": [
+    "58063e74e7c6"
+  ],
+  "frozen_source_commit": "da4b6e6eec4d43215fb4d9162a2302747ac5bafc",
+  "sha256": {
+    "58063e74e7c6.json": "4507c9c86075073153289b40d5702e9f8e13dcb66fe57dd9a6ca7c66a6ac7f44",
+    "preflight.json": "85be29437d8edc453de1a39420055fb323d27bcf383ae7908187388c2aa640d6"
+  },
+  "planned_summary_calls": 40,
+  "planned_receiver_probes": 280,
+  "model_call_audits": 320,
+  "identical_request_different_answers": [
+    "research-reopened-recent"
+  ],
+  "identical_request_behavior_changes": [
+    "research-reopened-recent"
+  ],
+  "identical_request_strict_changes": [
+    "research-reopened-recent"
+  ],
+  "local_hardware": {
+    "chip": "Apple M5 Pro",
+    "memory_gib": 24,
+    "model_gpu_resident": true
+  }
+}

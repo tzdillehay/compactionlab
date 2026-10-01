@@ -6,6 +6,10 @@ from pathlib import Path
 from statistics import mean, median
 
 STUDIES = {
+    "lifecycle": (
+        "Task-state retrieval",
+        "Current facts, completed actions, and pending follow-ups",
+    ),
     "bytes": ("Byte-budget comparisons", "Full, recent, summary, plain, and structured memory"),
     "qualification": ("Receiver qualification", "Full history and annotated source controls"),
     "tokens": (
@@ -75,6 +79,8 @@ def study_key(result):
         return "qualification"
     if protocol in {"state-probe-v3", "state-probe-v4"}:
         return "tokens" if result["config"].get("token_budget") is not None else "bytes"
+    if protocol == "lifecycle-v1":
+        return "lifecycle"
     if protocol == "representation-v1":
         return "encoding"
     return protocol
@@ -95,10 +101,13 @@ def run_summary(entry):
         if config.get("token_budget") is not None
         else f"{config.get('byte_budget', 0):,} bytes"
     )
+    origin = writer or (
+        "Typed API memory" if result.get("memory_origin") == "typed_api_events" else "Frozen memory"
+    )
     setup = (
         f"{reader} · reasoning {'on' if thinking else 'off'}"
         if qualification
-        else f"{writer or 'Frozen memory'} → {reader} · {allowances}"
+        else f"{origin} → {reader} · {allowances}"
     )
     summary = {
         "id": result["id"],
@@ -111,6 +120,13 @@ def run_summary(entry):
         "setup": setup,
         "metrics": metrics(result.get("trials", [])),
     }
+    if result.get("protocol") == "lifecycle-v1":
+        summary["lifecycle"] = {
+            "supported": len(result.get("analysis", {}).get("control_supported_cases", [])),
+            "cases": len(result.get("cases", [])),
+            "totals": result.get("totals", {}),
+            "parity": result.get("analysis", {}).get("packet_parity"),
+        }
     if qualification:
         summary["workflow_gates"] = {
             workflow: bool(total.get("qualified"))

@@ -76,3 +76,17 @@ interface from ordinary cross-origin browser requests. There is no multiuser aut
 deployment, or arbitrary command endpoint. Namespace separation is logical, not a security
 boundary. Retrieved records must be treated as untrusted data by integrating hosts. All local
 records/runs live in ignored `.local/`; export only reviewed synthetic results.
+
+## Typed event research adapter
+
+The [lifecycle study](lifecycle.md) supplies explicit application callbacks with entity, revision,
+status and dependency entity names. `lifecycle_memory` persists them through the same SQLite
+write/snapshot boundary, then resolves the latest user/tool event for each entity. The original
+immutable ledger remains available; assistant guesses cannot become authoritative heads.
+A dependency refers to the current entity at the same revision, rather than permanently binding
+a task to an old receipt. Ranked roots and their dependency closure are admitted atomically.
+Identical selected records are serialized identically across the linked and no-links policies.
+
+These are research policies, not the service's default retrieval. Application-supplied state is
+assumed correct in this study. Event capture, concurrency between clients, conflict resolution,
+source authentication and verification against actual execution need separate integration work.

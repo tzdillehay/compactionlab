@@ -1,0 +1,2827 @@
+{
+  "summary": {
+    "cases": 40,
+    "history_range": [
+      1785,
+      2303
+    ],
+    "max_full_prompt": 2571,
+    "max_writer_prompt": 2295,
+    "minimal_range": [
+      218,
+      292
+    ],
+    "no_links_parity": 40,
+    "packet_fact_coverage": {
+      "recent_history": 20,
+      "lexical": 15,
+      "current_no_links": 40,
+      "linked_current": 40
+    }
+  },
+  "cases": [
+    {
+      "case": "release_handoff-pending-old",
+      "history_tokens": 1794,
+      "full_prompt": 2060,
+      "writer_prompt": 1836,
+      "minimal_tokens": 227,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 494,
+          "ids": [
+            "e001",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 467,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 467,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-pending-recent",
+      "history_tokens": 1794,
+      "full_prompt": 2060,
+      "writer_prompt": 1836,
+      "minimal_tokens": 227,
+      "packets": {
+        "recent_history": {
+          "tokens": 470,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 472,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 467,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 467,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-completed-old",
+      "history_tokens": 1943,
+      "full_prompt": 2209,
+      "writer_prompt": 1967,
+      "minimal_tokens": 254,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 494,
+          "ids": [
+            "e001",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 494,
+          "ids": [
+            "e000",
+            "e001",
+            "e004",
+            "e005",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 494,
+          "ids": [
+            "e000",
+            "e001",
+            "e004",
+            "e005",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-completed-recent",
+      "history_tokens": 1943,
+      "full_prompt": 2209,
+      "writer_prompt": 1967,
+      "minimal_tokens": 254,
+      "packets": {
+        "recent_history": {
+          "tokens": 475,
+          "ids": [
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "e005",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 497,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 494,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e004",
+            "e005"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 494,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e004",
+            "e005"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-canceled-old",
+      "history_tokens": 2002,
+      "full_prompt": 2268,
+      "writer_prompt": 2021,
+      "minimal_tokens": 267,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 494,
+          "ids": [
+            "e001",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 507,
+          "ids": [
+            "e001",
+            "e004",
+            "e005",
+            "e006",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 507,
+          "ids": [
+            "e001",
+            "e004",
+            "e005",
+            "e006",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-canceled-recent",
+      "history_tokens": 2002,
+      "full_prompt": 2268,
+      "writer_prompt": 2021,
+      "minimal_tokens": 267,
+      "packets": {
+        "recent_history": {
+          "tokens": 486,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "e005",
+            "e006",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 483,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 507,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e004",
+            "e005",
+            "e006"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 507,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e004",
+            "e005",
+            "e006"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-reopened-old",
+      "history_tokens": 2231,
+      "full_prompt": 2497,
+      "writer_prompt": 2223,
+      "minimal_tokens": 290,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 502,
+          "ids": [
+            "e001",
+            "e007",
+            "e008",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 482,
+          "ids": [
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 482,
+          "ids": [
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-reopened-recent",
+      "history_tokens": 2231,
+      "full_prompt": 2497,
+      "writer_prompt": 2223,
+      "minimal_tokens": 290,
+      "packets": {
+        "recent_history": {
+          "tokens": 490,
+          "ids": [
+            "e004",
+            "e005",
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 477,
+          "ids": [
+            "e001",
+            "e003",
+            "e004",
+            "e007",
+            "e008",
+            "e009",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 482,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e006",
+            "e007",
+            "e008",
+            "e009"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 482,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e006",
+            "e007",
+            "e008",
+            "e009"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-followup_pending-old",
+      "history_tokens": 1867,
+      "full_prompt": 2133,
+      "writer_prompt": 1900,
+      "minimal_tokens": 243,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 494,
+          "ids": [
+            "e001",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 483,
+          "ids": [
+            "e000",
+            "e001",
+            "e003",
+            "e004",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 483,
+          "ids": [
+            "e000",
+            "e001",
+            "e003",
+            "e004",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "release_handoff-followup_pending-recent",
+      "history_tokens": 1867,
+      "full_prompt": 2133,
+      "writer_prompt": 1900,
+      "minimal_tokens": 243,
+      "packets": {
+        "recent_history": {
+          "tokens": 495,
+          "ids": [
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 497,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 483,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e003",
+            "e004"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 483,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e003",
+            "e004"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-pending-old",
+      "history_tokens": 1785,
+      "full_prompt": 2049,
+      "writer_prompt": 1827,
+      "minimal_tokens": 218,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 506,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 506,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-pending-recent",
+      "history_tokens": 1785,
+      "full_prompt": 2049,
+      "writer_prompt": 1827,
+      "minimal_tokens": 218,
+      "packets": {
+        "recent_history": {
+          "tokens": 509,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 511,
+          "ids": [
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 506,
+          "ids": [
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 506,
+          "ids": [
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-completed-old",
+      "history_tokens": 1934,
+      "full_prompt": 2198,
+      "writer_prompt": 1958,
+      "minimal_tokens": 245,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 485,
+          "ids": [
+            "e000",
+            "e001",
+            "e004",
+            "e005",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 485,
+          "ids": [
+            "e000",
+            "e001",
+            "e004",
+            "e005",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-completed-recent",
+      "history_tokens": 1934,
+      "full_prompt": 2198,
+      "writer_prompt": 1958,
+      "minimal_tokens": 245,
+      "packets": {
+        "recent_history": {
+          "tokens": 466,
+          "ids": [
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "e005",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 488,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 485,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e004",
+            "e005"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 485,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e004",
+            "e005"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-canceled-old",
+      "history_tokens": 1993,
+      "full_prompt": 2257,
+      "writer_prompt": 2012,
+      "minimal_tokens": 258,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 498,
+          "ids": [
+            "e001",
+            "e004",
+            "e005",
+            "e006",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 498,
+          "ids": [
+            "e001",
+            "e004",
+            "e005",
+            "e006",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-canceled-recent",
+      "history_tokens": 1993,
+      "full_prompt": 2257,
+      "writer_prompt": 2012,
+      "minimal_tokens": 258,
+      "packets": {
+        "recent_history": {
+          "tokens": 477,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "e005",
+            "e006",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 474,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 498,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e004",
+            "e005",
+            "e006"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 498,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e004",
+            "e005",
+            "e006"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-reopened-old",
+      "history_tokens": 2213,
+      "full_prompt": 2477,
+      "writer_prompt": 2205,
+      "minimal_tokens": 281,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 469,
+          "ids": [
+            "e008",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 473,
+          "ids": [
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 473,
+          "ids": [
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-reopened-recent",
+      "history_tokens": 2213,
+      "full_prompt": 2477,
+      "writer_prompt": 2205,
+      "minimal_tokens": 281,
+      "packets": {
+        "recent_history": {
+          "tokens": 481,
+          "ids": [
+            "e004",
+            "e005",
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 468,
+          "ids": [
+            "e002",
+            "e003",
+            "e004",
+            "e007",
+            "e008",
+            "e009",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 473,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e006",
+            "e007",
+            "e008",
+            "e009"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 473,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e006",
+            "e007",
+            "e008",
+            "e009"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-followup_pending-old",
+      "history_tokens": 1858,
+      "full_prompt": 2122,
+      "writer_prompt": 1891,
+      "minimal_tokens": 234,
+      "packets": {
+        "recent_history": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 485,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 474,
+          "ids": [
+            "e000",
+            "e001",
+            "e003",
+            "e004",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 474,
+          "ids": [
+            "e000",
+            "e001",
+            "e003",
+            "e004",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "conversation-followup_pending-recent",
+      "history_tokens": 1858,
+      "full_prompt": 2122,
+      "writer_prompt": 1891,
+      "minimal_tokens": 234,
+      "packets": {
+        "recent_history": {
+          "tokens": 486,
+          "ids": [
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 488,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 474,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e003",
+            "e004"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 474,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e003",
+            "e004"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-pending-old",
+      "history_tokens": 1864,
+      "full_prompt": 2132,
+      "writer_prompt": 1906,
+      "minimal_tokens": 231,
+      "packets": {
+        "recent_history": {
+          "tokens": 505,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 512,
+          "ids": [
+            "e001",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 481,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 481,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-pending-recent",
+      "history_tokens": 1864,
+      "full_prompt": 2132,
+      "writer_prompt": 1906,
+      "minimal_tokens": 231,
+      "packets": {
+        "recent_history": {
+          "tokens": 484,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 471,
+          "ids": [
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 481,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 481,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-completed-old",
+      "history_tokens": 2013,
+      "full_prompt": 2281,
+      "writer_prompt": 2037,
+      "minimal_tokens": 256,
+      "packets": {
+        "recent_history": {
+          "tokens": 505,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 512,
+          "ids": [
+            "e001",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 506,
+          "ids": [
+            "e000",
+            "e001",
+            "e004",
+            "e005",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 506,
+          "ids": [
+            "e000",
+            "e001",
+            "e004",
+            "e005",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-completed-recent",
+      "history_tokens": 2013,
+      "full_prompt": 2281,
+      "writer_prompt": 2037,
+      "minimal_tokens": 256,
+      "packets": {
+        "recent_history": {
+          "tokens": 483,
+          "ids": [
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "e005",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 471,
+          "ids": [
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 506,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e004",
+            "e005"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 506,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e004",
+            "e005"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-canceled-old",
+      "history_tokens": 2074,
+      "full_prompt": 2342,
+      "writer_prompt": 2093,
+      "minimal_tokens": 269,
+      "packets": {
+        "recent_history": {
+          "tokens": 505,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 512,
+          "ids": [
+            "e001",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 469,
+          "ids": [
+            "e001",
+            "e004",
+            "e005",
+            "e006",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 469,
+          "ids": [
+            "e001",
+            "e004",
+            "e005",
+            "e006",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-canceled-recent",
+      "history_tokens": 2074,
+      "full_prompt": 2342,
+      "writer_prompt": 2093,
+      "minimal_tokens": 269,
+      "packets": {
+        "recent_history": {
+          "tokens": 494,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "e005",
+            "e006",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 482,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 469,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e004",
+            "e005",
+            "e006"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 469,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e004",
+            "e005",
+            "e006"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-reopened-old",
+      "history_tokens": 2303,
+      "full_prompt": 2571,
+      "writer_prompt": 2295,
+      "minimal_tokens": 292,
+      "packets": {
+        "recent_history": {
+          "tokens": 505,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 484,
+          "ids": [
+            "e001",
+            "e007",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 492,
+          "ids": [
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 492,
+          "ids": [
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-reopened-recent",
+      "history_tokens": 2303,
+      "full_prompt": 2571,
+      "writer_prompt": 2295,
+      "minimal_tokens": 292,
+      "packets": {
+        "recent_history": {
+          "tokens": 494,
+          "ids": [
+            "e004",
+            "e005",
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 473,
+          "ids": [
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e007",
+            "e008",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 492,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e006",
+            "e007",
+            "e008",
+            "e009"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 492,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e006",
+            "e007",
+            "e008",
+            "e009"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-followup_pending-old",
+      "history_tokens": 1937,
+      "full_prompt": 2205,
+      "writer_prompt": 1970,
+      "minimal_tokens": 245,
+      "packets": {
+        "recent_history": {
+          "tokens": 505,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 512,
+          "ids": [
+            "e001",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 495,
+          "ids": [
+            "e000",
+            "e001",
+            "e003",
+            "e004",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 495,
+          "ids": [
+            "e000",
+            "e001",
+            "e003",
+            "e004",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "budgeting-followup_pending-recent",
+      "history_tokens": 1937,
+      "full_prompt": 2205,
+      "writer_prompt": 1970,
+      "minimal_tokens": 245,
+      "packets": {
+        "recent_history": {
+          "tokens": 507,
+          "ids": [
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 471,
+          "ids": [
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 495,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e003",
+            "e004"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 495,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e003",
+            "e004"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-pending-old",
+      "history_tokens": 1792,
+      "full_prompt": 2057,
+      "writer_prompt": 1834,
+      "minimal_tokens": 224,
+      "packets": {
+        "recent_history": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 512,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 512,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-pending-recent",
+      "history_tokens": 1792,
+      "full_prompt": 2057,
+      "writer_prompt": 1834,
+      "minimal_tokens": 224,
+      "packets": {
+        "recent_history": {
+          "tokens": 468,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 469,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 512,
+          "ids": [
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 512,
+          "ids": [
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-completed-old",
+      "history_tokens": 1943,
+      "full_prompt": 2208,
+      "writer_prompt": 1967,
+      "minimal_tokens": 251,
+      "packets": {
+        "recent_history": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 491,
+          "ids": [
+            "e000",
+            "e001",
+            "e004",
+            "e005",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 491,
+          "ids": [
+            "e000",
+            "e001",
+            "e004",
+            "e005",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-completed-recent",
+      "history_tokens": 1943,
+      "full_prompt": 2208,
+      "writer_prompt": 1967,
+      "minimal_tokens": 251,
+      "packets": {
+        "recent_history": {
+          "tokens": 475,
+          "ids": [
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "e005",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 494,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 491,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e004",
+            "e005"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 491,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e004",
+            "e005"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-canceled-old",
+      "history_tokens": 2002,
+      "full_prompt": 2267,
+      "writer_prompt": 2021,
+      "minimal_tokens": 263,
+      "packets": {
+        "recent_history": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 503,
+          "ids": [
+            "e001",
+            "e004",
+            "e005",
+            "e006",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 503,
+          "ids": [
+            "e001",
+            "e004",
+            "e005",
+            "e006",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-canceled-recent",
+      "history_tokens": 2002,
+      "full_prompt": 2267,
+      "writer_prompt": 2021,
+      "minimal_tokens": 263,
+      "packets": {
+        "recent_history": {
+          "tokens": 486,
+          "ids": [
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "e005",
+            "e006",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 480,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 503,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e004",
+            "e005",
+            "e006"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 503,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e004",
+            "e005",
+            "e006"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-reopened-old",
+      "history_tokens": 2230,
+      "full_prompt": 2495,
+      "writer_prompt": 2222,
+      "minimal_tokens": 289,
+      "packets": {
+        "recent_history": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 470,
+          "ids": [
+            "e008",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 481,
+          "ids": [
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 481,
+          "ids": [
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-reopened-recent",
+      "history_tokens": 2230,
+      "full_prompt": 2495,
+      "writer_prompt": 2222,
+      "minimal_tokens": 289,
+      "packets": {
+        "recent_history": {
+          "tokens": 492,
+          "ids": [
+            "e004",
+            "e005",
+            "e006",
+            "e007",
+            "e008",
+            "e009",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 479,
+          "ids": [
+            "e002",
+            "e003",
+            "e004",
+            "e007",
+            "e008",
+            "e009",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 481,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e006",
+            "e007",
+            "e008",
+            "e009"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 481,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e006",
+            "e007",
+            "e008",
+            "e009"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-followup_pending-old",
+      "history_tokens": 1865,
+      "full_prompt": 2130,
+      "writer_prompt": 1898,
+      "minimal_tokens": 240,
+      "packets": {
+        "recent_history": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "lexical": {
+          "tokens": 486,
+          "ids": [
+            "n023",
+            "n024",
+            "n025",
+            "n026",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "guess"
+          ],
+          "current_fact_sources_present": false
+        },
+        "current_no_links": {
+          "tokens": 480,
+          "ids": [
+            "e000",
+            "e001",
+            "e003",
+            "e004",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 480,
+          "ids": [
+            "e000",
+            "e001",
+            "e003",
+            "e004",
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    },
+    {
+      "case": "research-followup_pending-recent",
+      "history_tokens": 1865,
+      "full_prompt": 2130,
+      "writer_prompt": 1898,
+      "minimal_tokens": 240,
+      "packets": {
+        "recent_history": {
+          "tokens": 493,
+          "ids": [
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "lexical": {
+          "tokens": 494,
+          "ids": [
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e001",
+            "e002",
+            "e003",
+            "e004",
+            "guess"
+          ],
+          "current_fact_sources_present": true
+        },
+        "current_no_links": {
+          "tokens": 480,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e003",
+            "e004"
+          ],
+          "current_fact_sources_present": true
+        },
+        "linked_current": {
+          "tokens": 480,
+          "ids": [
+            "n027",
+            "n028",
+            "n029",
+            "n030",
+            "n031",
+            "e000",
+            "e001",
+            "e003",
+            "e004"
+          ],
+          "current_fact_sources_present": true
+        }
+      },
+      "ablation_parity": true
+    }
+  ]
+}

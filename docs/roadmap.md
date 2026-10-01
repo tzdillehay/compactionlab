@@ -18,7 +18,25 @@ gains and a strict conversation regression, without a complete-task gain from co
 See [measured findings](representation-findings.md). Source-priority retrieval and unfinished
 obligations now deserve testing before further packet-size optimization.
 
+The frozen `lifecycle-v1` slice separates fact provenance from completion evidence and compares
+current-state retrieval with lexical, recent-event and summary baselines on longer typed event
+ledgers. Forty state/placement checkpoints use four templates and simulated application callbacks;
+automatic memory extraction is excluded. A no-links control records input parity. See the
+[protocol](lifecycle.md). The control-supported subset diagnoses receiver behavior without hiding
+all-case failures. This is distinct from independent receiver qualification.
+
+The [measured lifecycle results](../results/lifecycle-2026-10-01/README.md) preserve all requested
+facts with current-state retrieval but expose missed ready actions and false completion even with
+full/minimal source controls. The no-links ablation has identical packets; one differing answer
+is generation variation. No repetition-of-completed-action advantage or recall speed gain is established.
+
 ## Next controlled study
+
+First compare raw current-state records with an externally computed readiness/completion view.
+Use only source events and validated same-revision dependencies. Keep missing/conflicting-state
+handling explicit, preserve the current frozen grades, and freeze a new protocol with multiple
+seeds. A stronger receiver/second family tests capability separately. Only completed checkpoints
+pass both controls in lifecycle-v1, so other-state gains cannot yet be explained by retrieval alone.
 
 1. Separate fact provenance from completion evidence explicitly in the output schema. Requalify
    models on independent templates before freezing checkpoints and policies; retain this batch's

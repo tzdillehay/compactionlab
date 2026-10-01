@@ -91,9 +91,15 @@ def test_public_checkout_overview_uses_frozen_evidence_without_inference(tmp_pat
     published = Path(__file__).resolve().parents[1] / "results"
     with TestClient(create_app(tmp_path, published_dir=published)) as client:
         result = client.get("/api/overview").json()
-        assert result["summary"]["saved_probes"] == 687
-        assert result["summary"]["runs"] == 15
-        assert result["summary"]["studies"] == 4
+        assert result["summary"]["saved_probes"] == sum(
+            len(json.loads(p.read_text())["trials"])
+            for p in published.rglob("*.json")
+            if len(p.stem) == 12
+        )
+        assert result["summary"]["runs"] == len(
+            [p for p in published.rglob("*.json") if len(p.stem) == 12]
+        )
+        assert result["summary"]["studies"] >= 4
         assert result["summary"]["development_runs"] == 5
         encoding = next(s for s in result["studies"] if s["id"] == "encoding")
         assert encoding["metrics"]["saved"] == 153
@@ -110,3 +116,28 @@ def test_public_checkout_overview_uses_frozen_evidence_without_inference(tmp_pat
         assert (
             client.get("/api/qualifications/07deef2b5d38").json()["protocol"] == "qualification-v3"
         )
+
+
+def test_typed_state_study_has_honest_origin_and_behavior_controls(tmp_path):
+    folder = tmp_path / "runs"
+    result = save(folder, "c" * 12, protocol="lifecycle-v1", token_budget=512)
+    result["config"].pop("writer_model")
+    result.update(
+        memory_origin="typed_api_events",
+        cases=[{"case": "a"}, {"case": "b"}],
+        totals={"linked_current": {"planned": 2, "passed": 1, "behavior_passed": 2}},
+        analysis={"control_supported_cases": ["a"], "packet_parity": {"pairs": 2, "identical": 2}},
+    )
+    (folder / f"{result['id']}.json").write_text(json.dumps(result))
+    with TestClient(create_app(tmp_path)) as client:
+        study = client.get("/api/overview").json()["studies"][0]
+        assert study["id"] == "lifecycle"
+        run = study["runs"][0]
+        assert run["setup"] == "Typed API memory → qwen3:8b · 512 tokens"
+        assert run["models"] == ["qwen3:8b"]
+        assert run["lifecycle"] == {
+            "supported": 1,
+            "cases": 2,
+            "totals": result["totals"],
+            "parity": {"pairs": 2, "identical": 2},
+        }

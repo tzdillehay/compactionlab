@@ -2,6 +2,10 @@ const $ = (id) => document.getElementById(id);
 const labels = {
   full_history: "Full history",
   recent_history: "Recent history",
+  minimal_source: "Minimal source control",
+  lexical: "Lexical retrieval",
+  current_no_links: "Current state · no links",
+  linked_current: "Linked current state",
   summary: "LLM summary",
   plain: "Plain records",
   structured: "State + evidence",
@@ -170,6 +174,17 @@ async function loadOverview() {
           ),
         );
       }
+      if (latest.lifecycle) {
+        const l = latest.lifecycle;
+        const t = l.totals.linked_current;
+        card.append(
+          element(
+            "p",
+            `${t ? `Latest run · Linked state: ${t.behavior_passed}/${t.planned} behavior passes. ` : ""}${l.supported}/${l.cases} checkpoints pass both behavior controls.${l.parity ? ` Linked/no-links inputs identical in ${l.parity.identical}/${l.parity.pairs} pairs.` : " Controls pending."}`,
+            "study-insight",
+          ),
+        );
+      }
       const footer = element("div", "", "study-footer");
       footer.append(
         element(
@@ -277,7 +292,7 @@ async function loadRuns(preferred) {
     $("runs"),
     rows.map((r) => [
       r.id,
-      `${r.config.writer_model || "Frozen 4B memory"} → ${r.config.reader_model} · ${r.id}`,
+      `${r.config.writer_model || (r.protocol === "lifecycle-v1" ? "Typed API memory" : "Frozen 4B memory")} → ${r.config.reader_model} · ${r.id}`,
     ]),
     preferred || rows[0]?.id,
   );
@@ -286,13 +301,37 @@ async function loadRuns(preferred) {
 async function showRun(id) {
   const result = await api(`/api/runs/${id}`);
   const replay = result.protocol === "representation-v1";
+  const lifecycle = result.protocol === "lifecycle-v1";
   const allowance = replay
     ? `${result.config.budgets.join(", ")} historical tokens`
     : result.config.token_budget
       ? `${result.config.token_budget.toLocaleString()} historical tokens`
       : `${result.config.byte_budget.toLocaleString()} historical bytes`;
   $("run-meta").textContent =
-    `${result.status} · ${result.protocol} · ${allowance} · ${result.trials.length}${replay ? `/${result.planned_trials}` : ""} probes saved · ${result.config.writer_model || result.frozen_writer?.name} → ${result.config.reader_model}`;
+    `${result.status} · ${result.protocol} · ${allowance} · ${result.trials.length}${replay ? `/${result.planned_trials}` : ""} probes saved · ${result.config.writer_model || result.frozen_writer?.name || (lifecycle ? "Typed API memory" : "Stored memory")} → ${result.config.reader_model}`;
+  $("lifecycle-results").hidden = !lifecycle;
+  $("lifecycle-totals").replaceChildren();
+  if (lifecycle) {
+    const a = result.analysis;
+    $("lifecycle-note").textContent = a
+      ? `${a.control_supported_cases.length}/${result.cases.length} checkpoints pass both full-history and minimal-source behavior controls. Linked/no-links inputs coincide in ${a.packet_parity.identical}/${a.packet_parity.pairs} pairs, so identical outcomes cannot establish a separate link benefit. Retrieval assumes correctly recorded application state; free-form extraction is untested.`
+      : "Study running; controls and paired comparisons are pending.";
+    for (const [condition, t] of Object.entries(result.totals || {})) {
+      const row = document.createElement("tr");
+      cell(row, labels[condition] || condition);
+      cell(row, `${t.behavior_passed} / ${t.planned}`);
+      cell(row, `${t.passed} / ${t.planned}`);
+      for (const key of [
+        "missed_action_cases",
+        "extra_action_cases",
+        "repeated_action_cases",
+        "false_completion_cases",
+        "errors",
+      ])
+        cell(row, t[key]);
+      $("lifecycle-totals").append(row);
+    }
+  }
   $("replay-results").hidden = !replay;
   $("replay-totals").replaceChildren();
   if (replay) {

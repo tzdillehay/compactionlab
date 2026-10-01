@@ -35,6 +35,13 @@ better on these short tasks. See [findings and next experiment](docs/representat
 This tests recall between model sizes within one family; cross-family and long-horizon recall
 remain unmeasured.
 
+The [280-probe task-state study](results/lifecycle-2026-10-01/README.md) finds a recall improvement:
+current-state retrieval preserves 100% of requested facts versus 72.5% for lexical retrieval and
+51.7% for recent history. Workflow behavior still succeeds in only 15/40 linked-state checkpoints;
+only completed workflows pass both behavior controls. Typed callbacks are assumed accurate,
+and linked/no-links packets coincide, so extraction accuracy and a separate link benefit remain
+unmeasured. The next hypothesis is to compute readiness and completion outside the receiving model.
+
 ## Quick start
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
@@ -116,6 +123,24 @@ model request. Failed extraction and backend errors remain visible.
 The initial cases are release handoff, conversation corrections, and a synthetic one-period debt
 snowball budget. The release case captures a real passing test log for revision A before creating
 revision B. Its continuation is a **declared state probe**, not an autonomous app implementation.
+
+## Test typed task-state retrieval
+
+```sh
+uv run compactionlab prepare-tokenizer --model qwen3:8b
+uv run compactionlab lifecycle --reader qwen3:8b --token-budget 512 --seed 314159
+```
+
+The [frozen lifecycle protocol](docs/lifecycle.md) compares 40 checkpoints across conversation,
+app release, budget review and research. It tests pending, completed, canceled, reopened and
+follow-up states, with important events near the beginning or end of longer histories. Receipts
+are simulated; the budgeting case tracks a review allowance and tasks, not debt calculations.
+
+These records come from explicit typed application events, not model extraction. The same SQLite
+store persists them; a separate research adapter resolves current entity state and dependencies.
+The HTTP/MCP default policy is unchanged. Behavior and strict evidence scores are reported
+separately, with full-history/minimal-source controls and complete failed responses retained.
+The dashboard shows this study and its missed, extra, repeated and false-completion counts.
 
 ## Use the external context service
 

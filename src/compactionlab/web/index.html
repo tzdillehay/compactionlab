@@ -216,6 +216,33 @@
           </select>
         </div>
         <div id="run-meta" class="muted"></div>
+        <div id="lifecycle-results" hidden>
+          <h3>Task-state retrieval: behavior and evidence</h3>
+          <p id="lifecycle-note" class="note"></p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Behavior passes</th>
+                  <th>Strict passes</th>
+                  <th>Missed actions</th>
+                  <th>Extra actions</th>
+                  <th>Repeated actions</th>
+                  <th>False completion</th>
+                  <th>Errors</th>
+                </tr>
+              </thead>
+              <tbody id="lifecycle-totals"></tbody>
+            </table>
+          </div>
+          <p class="note">
+            Counts are affected cases, not numbers of actions. Strict passes
+            also require current fact sources and completion evidence. The 40
+            checkpoints vary four workflow templates; they are not 40
+            independent tasks. Receipts are simulated.
+          </p>
+        </div>
         <div id="replay-results" hidden>
           <h3>Frozen memory: compare within each allowance</h3>
           <p class="note">
@@ -276,8 +303,9 @@
           </select>
         </div>
         <p class="note">
-          Inspect model-written records and original sources. Supersession is a
-          writer judgment, not a guarantee of truth.
+          Inspect stored records and original sources. Some studies use
+          model-written records, others use typed application events. Source
+          claims and replacement links require validation by the application.
         </p>
         <div class="table-scroll">
           <table>
