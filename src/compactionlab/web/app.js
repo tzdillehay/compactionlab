@@ -58,6 +58,202 @@ function options(select, rows, selected) {
   }
   if (selected) select.value = selected;
 }
+function element(tag, text, className = "") {
+  const node = document.createElement(tag);
+  node.textContent = text;
+  node.className = className;
+  return node;
+}
+function accuracy(value) {
+  return value === null ? "—" : `${Math.round(value * 100)}%`;
+}
+function seconds(value) {
+  return value === null ? "—" : `${value.toFixed(2)}s`;
+}
+function counted(value, singular, plural = `${singular}s`) {
+  return `${value} ${value === 1 ? singular : plural}`;
+}
+async function openStudyRun(run) {
+  try {
+    if (run.kind === "qualification") {
+      $("qualification-panel").open = true;
+      await loadQualifications(run.id);
+      $("qualification-panel").scrollIntoView({ block: "start" });
+    } else {
+      await loadRuns(run.id);
+      $("results").scrollIntoView({ block: "start" });
+    }
+  } catch (error) {
+    $("overview-status").textContent = error.message;
+  }
+}
+function runButton(run, label = "Inspect ↗") {
+  const button = element("button", label, "secondary-button");
+  button.type = "button";
+  button.setAttribute("aria-label", `${label} ${run.id}`);
+  button.addEventListener("click", () => openStudyRun(run));
+  return button;
+}
+async function loadOverview() {
+  $("refresh-overview").disabled = true;
+  try {
+    const result = await api("/api/overview");
+    const summary = result.summary;
+    $("overview-status").textContent = summary.latest_at
+      ? `Latest saved · ${new Date(summary.latest_at).toLocaleString()} · All saved history`
+      : "No saved studies yet. Run a comparison to begin.";
+    $("overview-metrics").replaceChildren();
+    const headline = [
+      ["Study types", summary.studies, "Current protocols"],
+      [
+        "Saved evaluations",
+        summary.saved_probes,
+        "Includes development runs & errors",
+      ],
+      [
+        "Completed runs",
+        summary.completed_runs,
+        `${summary.runs} total saved runs`,
+      ],
+      [
+        "Model variants",
+        summary.models.length,
+        summary.models.join(" · ") || "No models tested yet",
+      ],
+    ];
+    for (const [label, value, caption] of headline) {
+      const card = element("div", "", "metric-card");
+      card.append(
+        element("span", label, "metric-label"),
+        element("strong", value.toLocaleString(), "metric-value"),
+        element("span", caption, "metric-caption"),
+      );
+      $("overview-metrics").append(card);
+    }
+    $("study-cards").replaceChildren();
+    for (const study of result.studies) {
+      const card = element("article", "", "study-card");
+      const heading = element("div", "", "study-heading");
+      heading.append(
+        element("h2", study.title),
+        element("span", counted(study.runs.length, "saved run"), "study-badge"),
+      );
+      card.append(
+        heading,
+        element("p", study.description, "study-description"),
+      );
+      const stats = element("div", "", "study-stats");
+      const m = study.metrics;
+      for (const [label, value] of [
+        ["Evaluations", m.saved.toLocaleString()],
+        ["Strict passes", `${m.passed} / ${m.saved}`],
+        ["Fact accuracy", accuracy(m.mean_fact_accuracy)],
+        ["Median response", seconds(m.median_receiver_seconds)],
+      ]) {
+        const stat = element("div", "");
+        stat.append(
+          element("span", label, "stat-label"),
+          element("strong", value, "stat-value"),
+        );
+        stats.append(stat);
+      }
+      card.append(stats);
+      const latest = study.runs[0];
+      if (latest.encoding) {
+        const e = latest.encoding;
+        const reduction = e.same_selection_token_reduction;
+        card.append(
+          element(
+            "p",
+            `Latest run · Compact vs verbose: ${counted(e.wins, "win")}, ${counted(e.losses, "loss", "losses")}, ${counted(e.ties, "tie")}.${reduction ? ` Same records use ${(reduction[0] * 100).toFixed(1)}–${(reduction[1] * 100).toFixed(1)}% fewer history tokens.` : ""}`,
+            "study-insight",
+          ),
+        );
+      }
+      const footer = element("div", "", "study-footer");
+      footer.append(
+        element(
+          "span",
+          `${m.errors} errors · ${m.graded} graded · ${m.timed_responses} timed responses`,
+        ),
+        runButton(latest, "View latest ↗"),
+      );
+      card.append(footer);
+      const detail = element("details", "", "study-runs");
+      detail.append(
+        element("summary", `Run history · ${study.protocols.join(" · ")}`),
+      );
+      for (const run of study.runs) {
+        const row = element("div", "", "study-run");
+        const text = element("div", "");
+        const r = run.metrics;
+        text.append(
+          element("span", run.setup),
+          element(
+            "span",
+            `${run.id} · ${run.status} · ${run.published ? "published trace" : "local trace"}`,
+          ),
+          element(
+            "span",
+            `${r.passed}/${r.saved} strict passes · ${accuracy(r.mean_fact_accuracy)} facts · ${seconds(r.median_receiver_seconds)} median · ${r.errors} errors`,
+          ),
+        );
+        if (run.workflow_gates) {
+          const gates = Object.values(run.workflow_gates);
+          text.append(
+            element(
+              "span",
+              `${gates.filter(Boolean).length}/${gates.length} workflow gates met`,
+            ),
+          );
+        }
+        row.append(text, runButton(run));
+        detail.append(row);
+      }
+      card.append(detail);
+      $("study-cards").append(card);
+    }
+    $("development-archive").hidden = !result.development.length;
+    $("development-title").textContent =
+      `Earlier protocol runs · ${result.development.length}`;
+    $("development-runs").replaceChildren();
+    for (const run of result.development) {
+      const row = document.createElement("tr");
+      cell(row, `${run.id} · ${run.setup}`);
+      cell(row, run.protocol);
+      cell(row, `${run.metrics.passed} / ${run.metrics.saved}`);
+      cell(row, run.metrics.errors);
+      cell(row, "").append(runButton(run));
+      $("development-runs").append(row);
+    }
+    $("overview-note").textContent =
+      "Coverage totals include repeated checkpoints and all conditions. Strict passes count saved errors as failures; fact accuracy averages graded responses; response time is the median of measured receiver calls. Compare methods within the same run and allowance.";
+  } catch (error) {
+    $("overview-status").textContent = `Overview unavailable: ${error.message}`;
+  } finally {
+    $("refresh-overview").disabled = false;
+  }
+}
+$("refresh-overview").addEventListener("click", loadOverview);
+try {
+  $("qualification-panel").open =
+    localStorage.getItem("compactionlab.qualification.open") === "true";
+} catch {
+  /* Disclosure still works when browser storage is unavailable. */
+}
+$("qualification-panel").addEventListener("toggle", () => {
+  try {
+    localStorage.setItem(
+      "compactionlab.qualification.open",
+      String($("qualification-panel").open),
+    );
+  } catch {
+    /* Disclosure still works when browser storage is unavailable. */
+  }
+});
+$("qualification-nav").addEventListener("click", () => {
+  $("qualification-panel").open = true;
+});
 async function loadModels() {
   try {
     const result = await api("/api/models");
@@ -280,6 +476,7 @@ async function poll() {
         job.error ||
         `Completed · ${job.trials || 0} probes saved. Select a trial to inspect its context and response.`;
       await loadRuns(job.run_id);
+      await loadOverview();
     } else {
       if (job.run_id) await showRun(job.run_id);
       setTimeout(poll, 2000);
@@ -297,6 +494,8 @@ $("namespaces").addEventListener("change", () =>
 
 async function loadQualifications(preferred) {
   const rows = await api("/api/qualifications");
+  $("qualification-summary-value").textContent =
+    `${rows.length} saved runs · Controls, workflow gates & outcomes`;
   options(
     $("qualification-runs"),
     rows.map((r) => [
@@ -392,6 +591,7 @@ async function pollQualification() {
       $("qualification-status").textContent =
         job.error || `Completed · ${job.trials} probes saved.`;
       await loadQualifications(job.run_id);
+      await loadOverview();
     } else {
       if (job.run_id) await showQualification(job.run_id);
       setTimeout(pollQualification, 2000);
@@ -405,6 +605,11 @@ async function pollQualification() {
 $("qualification-runs").addEventListener("change", () =>
   showQualification($("qualification-runs").value),
 );
-Promise.all([loadModels(), loadRuns(), loadQualifications()]).catch((error) => {
+Promise.all([
+  loadModels(),
+  loadRuns(),
+  loadQualifications(),
+  loadOverview(),
+]).catch((error) => {
   $("status").textContent = error.message;
 });

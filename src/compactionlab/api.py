@@ -1,6 +1,5 @@
 """Loopback-only HTTP service and dashboard; one model experiment at a time."""
 
-import json
 import re
 import threading
 import uuid
@@ -14,6 +13,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from compactionlab import __version__
 from compactionlab.experiment import run_experiment
 from compactionlab.ollama import Ollama
+from compactionlab.overview import catalog, overview
 from compactionlab.qualification import run_qualification
 from compactionlab.schemas import (
     ContextRequest,
@@ -25,7 +25,12 @@ from compactionlab.store import RevisionConflict, Store
 from compactionlab.tokens import load_counter
 
 
-def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
+def create_app(
+    data_dir: Path, ollama_url="http://127.0.0.1:11434", *, published_dir: Path | None = None
+):
+    data_dir = Path(data_dir)
+    if published_dir is None and (data_dir.resolve().parent / "pyproject.toml").is_file():
+        published_dir = data_dir.resolve().parent / "results"
     store = Store(data_dir / "memory.sqlite3")
     app = FastAPI(title="CompactionLab", version=__version__, docs_url=None, redoc_url=None)
     app.add_middleware(
@@ -72,6 +77,10 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
     @app.get("/api/health")
     def health():
         return {"status": "ok", "service": "compactionlab", "version": __version__}
+
+    @app.get("/api/overview")
+    def research_overview():
+        return overview(catalog(data_dir, published_dir))
 
     @app.get("/api/models")
     def models():
@@ -167,49 +176,49 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
 
     @app.get("/api/qualifications")
     def qualifications():
-        paths = sorted(
-            (data_dir / "qualifications").glob("*.json"),
-            key=lambda p: p.stat().st_mtime,
-            reverse=True,
-        )[:30]
         return [
             {
                 key: value.get(key)
-                for key in ["id", "created_at", "status", "config", "totals", "qualified"]
+                for key in [
+                    "id",
+                    "created_at",
+                    "status",
+                    "protocol",
+                    "config",
+                    "totals",
+                    "qualified",
+                ]
             }
-            for path in paths
-            if (value := json.loads(path.read_text(encoding="utf-8")))
+            for entry in catalog(data_dir, published_dir)
+            if entry["kind"] == "qualification" and (value := entry["result"])
         ]
+
+    def saved_result(run_id, qualification):
+        if not re.fullmatch(r"[a-f0-9]{12}", run_id):
+            raise HTTPException(400, "Invalid result ID")
+        for entry in catalog(data_dir, published_dir):
+            value = entry["result"]
+            if value["id"] == run_id and (entry["kind"] == "qualification") == qualification:
+                return value
+        raise HTTPException(404, "Result not found")
 
     @app.get("/api/qualifications/{run_id}")
     def qualification_result(run_id: str):
-        if not re.fullmatch(r"[a-f0-9]{12}", run_id):
-            raise HTTPException(400, "Invalid qualification ID")
-        path = data_dir / "qualifications" / f"{run_id}.json"
-        if not path.is_file():
-            raise HTTPException(404, "Qualification not found")
-        return json.loads(path.read_text(encoding="utf-8"))
+        return saved_result(run_id, True)
 
     @app.get("/api/runs")
     def runs():
-        paths = sorted(
-            (data_dir / "runs").glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True
-        )[:30]
-        summaries = []
-        for path in paths:
-            value = json.loads(path.read_text(encoding="utf-8"))
-            summaries.append(
-                {key: value.get(key) for key in ["id", "created_at", "status", "config", "totals"]}
-            )
-        return summaries
+        return [
+            {
+                key: value.get(key)
+                for key in ["id", "created_at", "status", "protocol", "config", "totals"]
+            }
+            for entry in catalog(data_dir, published_dir)
+            if entry["kind"] == "comparison" and (value := entry["result"])
+        ]
 
     @app.get("/api/runs/{run_id}")
     def run(run_id: str):
-        if not re.fullmatch(r"[a-f0-9]{12}", run_id):
-            raise HTTPException(400, "Invalid run ID")
-        path = data_dir / "runs" / f"{run_id}.json"
-        if not path.is_file():
-            raise HTTPException(404, "Run not found")
-        return json.loads(path.read_text(encoding="utf-8"))
+        return saved_result(run_id, False)
 
     return app

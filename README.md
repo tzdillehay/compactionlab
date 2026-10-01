@@ -54,6 +54,14 @@ Open **http://127.0.0.1:8765**. The service binds to loopback and the dashboard 
 Select installed writer/reader models, run a comparison, and inspect each context and response.
 No API key or paid model is required. Pulling weights requires several GB of disk space.
 
+The overview tracks each study's saved evaluations, strict passes, fact accuracy, errors, and
+median receiver response time. Expand run history for individual settings and results. Earlier
+protocols have a separate archive; coverage totals are not a ranking across studies. Qualification
+controls and outcomes collapse into one row, and the browser remembers your choice.
+When using the repository's default `.local` directory, checked-in public traces are available
+without running a model. Local results take precedence for matching IDs and are counted once.
+`GET /api/overview` exposes the same inventory; it refreshes after an interface-launched run finishes.
+
 Python 3.12+; macOS Apple Silicon is the initial inference target. Offline checks run on Linux and
 Windows in CI. Windows GPU inference has not been measured by this project.
 

@@ -191,6 +191,204 @@ pre {
   font-family: monospace;
   font-size: 11px;
 }
+[hidden] {
+  display: none !important;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 20px;
+}
+.workspace-nav {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-top: 26px;
+  padding-bottom: 16px;
+  font-size: 13px;
+  overflow-x: auto;
+}
+.workspace-nav a {
+  color: var(--muted);
+}
+.workspace-nav a:hover {
+  color: var(--mint);
+}
+.workspace-intro {
+  padding: 26px 0 6px;
+}
+.workspace-intro h1 {
+  font-size: clamp(32px, 4vw, 44px);
+  margin: 8px 0 12px;
+}
+.workspace-intro .lede {
+  font-size: 15px;
+  max-width: none;
+}
+.overview-heading,
+.study-heading,
+.study-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.overview-heading {
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+.secondary-button {
+  width: auto;
+  margin: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--mint);
+  padding: 8px 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.metric-card,
+.study-card {
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+}
+.metric-label,
+.stat-label {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.metric-value {
+  display: block;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  margin: 5px 0;
+}
+.metric-caption {
+  font-size: 11px;
+  color: var(--muted);
+}
+.study-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.study-heading h2 {
+  font-size: 17px;
+}
+.study-badge {
+  font-size: 10px;
+  border: 1px solid var(--line);
+  padding: 3px 8px;
+  border-radius: 20px;
+  color: var(--mint);
+  white-space: nowrap;
+}
+.study-description {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 0 16px;
+}
+.study-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.stat-value {
+  display: block;
+  font-size: 19px;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+.study-footer {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.study-insight {
+  font-size: 12px;
+  color: var(--amber);
+  margin: 14px 0 0;
+}
+.study-runs {
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding: 12px 0 0;
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.study-run {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.study-run span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.qualification-panel {
+  font-size: 15px;
+}
+.qualification-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  list-style: none;
+}
+.qualification-summary::-webkit-details-marker {
+  display: none;
+}
+.disclosure-title {
+  font-size: 20px;
+  font-weight: 550;
+}
+#qualification-summary-value {
+  font-size: 12px;
+}
+.disclosure-label {
+  margin-left: auto;
+  color: var(--mint);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.disclosure-label::after {
+  content: "Expand +";
+}
+.qualification-panel[open] .disclosure-label::after {
+  content: "Collapse −";
+}
+.qualification-body {
+  margin-top: 24px;
+}
+button:hover,
+summary:hover {
+  filter: brightness(1.12);
+}
+:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
 footer {
   justify-content: flex-start;
   padding: 26px 0;
@@ -218,5 +416,32 @@ footer span {
   }
   .pill {
     display: none;
+  }
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .study-grid {
+    grid-template-columns: 1fr;
+  }
+  .qualification-summary {
+    flex-wrap: wrap;
+  }
+  #qualification-summary-value {
+    flex-basis: 100%;
+    order: 3;
+  }
+}
+@media (max-width: 420px) {
+  .study-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .controls {
+    grid-template-columns: 1fr;
+  }
+  .study-heading {
+    align-items: flex-start;
+  }
+  .overview-heading {
+    flex-wrap: wrap;
   }
 }

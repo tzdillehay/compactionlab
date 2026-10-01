@@ -12,15 +12,64 @@
         <a class="brand" href="/">◈ CompactionLab</a
         ><span class="pill">LOCAL RESEARCH PREVIEW</span>
       </header>
-      <section class="intro">
+      <nav class="workspace-nav" aria-label="Research workspace">
+        <a href="#overview">Overview</a>
+        <a href="#comparison">Compare</a>
+        <a href="#qualification-panel" id="qualification-nav">Qualification</a>
+        <a href="#results">Results</a>
+        <a href="#memory">Memory</a>
+      </nav>
+      <section class="intro workspace-intro">
         <p class="eyebrow">CONTEXT BETWEEN MODELS</p>
-        <h1>Keep the work.<br />Change the model.</h1>
+        <h1>Research overview</h1>
         <p class="lede">
-          Inspect what memory preserves, what a fresh model recalls, and where a
-          handoff fails.
+          Track what we tested, what memory preserves, and where a model handoff
+          fails.
         </p>
       </section>
-      <section class="panel">
+      <section id="overview" aria-label="Research overview">
+        <div class="overview-heading">
+          <p
+            id="overview-status"
+            class="muted"
+            role="status"
+            aria-live="polite"
+          >
+            Loading saved studies…
+          </p>
+          <button id="refresh-overview" class="secondary-button" type="button">
+            Refresh overview ↻
+          </button>
+        </div>
+        <div id="overview-metrics" class="metric-grid"></div>
+        <div id="study-cards" class="study-grid"></div>
+        <p id="overview-note" class="note">
+          Counts describe saved evaluations, including repeated checkpoints.
+          Compare methods within the same run and allowance.
+        </p>
+        <details id="development-archive" class="archive" hidden>
+          <summary id="development-title">Earlier protocol runs</summary>
+          <p class="note">
+            Preserved for inspection. Earlier grading contracts are excluded
+            from the study cards above.
+          </p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Run / setup</th>
+                  <th>Protocol</th>
+                  <th>Strict passes / saved</th>
+                  <th>Errors</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="development-runs"></tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+      <section id="comparison" class="panel">
         <div class="section-title">
           <h2>Run a comparison</h2>
           <span id="connection" class="muted">Connecting to local models…</span>
@@ -82,74 +131,84 @@
           Ready when local models are available.
         </div>
       </section>
-      <section class="panel">
-        <div class="section-title">
-          <h2>Qualify a receiving model</h2>
-          <span class="muted">Capability before memory claims</span>
-        </div>
-        <form id="qualification">
-          <div class="controls">
-            <label
-              >Receiving model<select id="qualification-model" required></select
-            ></label>
-            <label
-              >Reasoning<select id="qualification-thinking">
-                <option value="false">Disabled</option>
-                <option value="true">Enabled · 6,144 output tokens</option>
-              </select></label
-            >
-            <label
-              >Cases per workflow<select id="qualification-count">
-                <option value="20">20 · qualification study</option>
-                <option value="4">4 · smoke only</option>
-              </select></label
-            >
-            <label
-              >Budget calculator<select id="qualification-calculator">
-                <option value="true">Provide draft calculation</option>
-                <option value="false">Model arithmetic only</option>
-              </select></label
-            >
-            <button id="qualification-start" type="submit">
-              Run qualification ↗
-            </button>
+      <details id="qualification-panel" class="panel qualification-panel">
+        <summary class="qualification-summary">
+          <span class="disclosure-title" role="heading" aria-level="2"
+            >Qualify a receiving model</span
+          >
+          <span id="qualification-summary-value" class="muted"
+            >Controls, workflow gates &amp; saved outcomes</span
+          >
+          <span class="disclosure-label" aria-hidden="true"></span>
+        </summary>
+        <div class="qualification-body">
+          <form id="qualification">
+            <div class="controls">
+              <label
+                >Receiving model<select
+                  id="qualification-model"
+                  required
+                ></select
+              ></label>
+              <label
+                >Reasoning<select id="qualification-thinking">
+                  <option value="false">Disabled</option>
+                  <option value="true">Enabled · 6,144 output tokens</option>
+                </select></label
+              >
+              <label
+                >Cases per workflow<select id="qualification-count">
+                  <option value="20">20 · qualification study</option>
+                  <option value="4">4 · smoke only</option>
+                </select></label
+              >
+              <label
+                >Budget calculator<select id="qualification-calculator">
+                  <option value="true">Provide draft calculation</option>
+                  <option value="false">Model arithmetic only</option>
+                </select></label
+              >
+              <button id="qualification-start" type="submit">
+                Run qualification ↗
+              </button>
+            </div>
+          </form>
+          <p class="note">
+            Three workflows · Full history and an annotated source subset · Both
+            completed and unfinished tasks. Qualification requires at least 20
+            cases per workflow and 90% full-history success. A prepared
+            tokenizer is required.
+          </p>
+          <p id="qualification-status" class="status">
+            Saved qualification results are available below.
+          </p>
+          <select id="qualification-runs" aria-label="Select qualification run">
+            <option>No qualification runs</option>
+          </select>
+          <p id="qualification-meta" class="muted"></p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Workflow</th>
+                  <th>Full history</th>
+                  <th>Minimal sources</th>
+                  <th>Gate</th>
+                </tr>
+              </thead>
+              <tbody id="qualification-totals"></tbody>
+            </table>
           </div>
-        </form>
-        <p class="note">
-          Three workflows · Full history and an annotated source subset · Both
-          completed and unfinished tasks. Qualification requires at least 20
-          cases per workflow and 90% full-history success. A prepared tokenizer
-          is required.
-        </p>
-        <p id="qualification-status" class="status">
-          Saved qualification results are available below.
-        </p>
-        <select id="qualification-runs" aria-label="Select qualification run">
-          <option>No qualification runs</option>
-        </select>
-        <p id="qualification-meta" class="muted"></p>
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Workflow</th>
-                <th>Full history</th>
-                <th>Minimal sources</th>
-                <th>Gate</th>
-              </tr>
-            </thead>
-            <tbody id="qualification-totals"></tbody>
-          </table>
+          <p class="note">
+            The minimal-source condition is a diagnostic control. These are
+            parameterized state probes; delivery and payment receipts are
+            simulated, and the calculator receives fixture inputs. They do not
+            test autonomous tool selection or actual task execution.
+          </p>
+          <div id="qualification-trials"></div>
         </div>
-        <p class="note">
-          The minimal-source condition is a diagnostic control. These are
-          parameterized state probes; delivery and payment receipts are
-          simulated, and the calculator receives fixture inputs. They do not
-          test autonomous tool selection or actual task execution.
-        </p>
-        <div id="qualification-trials"></div>
-      </section>
-      <section class="panel">
+      </details>
+      <section id="results" class="panel">
         <div class="section-title">
           <h2>Results</h2>
           <select id="runs" aria-label="Select saved run">
@@ -209,7 +268,7 @@
         </p>
         <div id="trials"></div>
       </section>
-      <section class="panel">
+      <section id="memory" class="panel">
         <div class="section-title">
           <h2>Context matrix</h2>
           <select id="namespaces" aria-label="Select task memory">
