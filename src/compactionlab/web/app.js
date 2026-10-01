@@ -73,7 +73,7 @@ async function loadRuns(preferred) {
 async function showRun(id) {
   const result = await api(`/api/runs/${id}`);
   $("run-meta").textContent =
-    `${result.status} · ${result.config.byte_budget.toLocaleString()} historical bytes · ${result.trials.length} probes · ${result.config.writer_model} → ${result.config.reader_model}`;
+    `${result.status} · ${result.protocol} · ${result.config.byte_budget.toLocaleString()} historical bytes · ${result.trials.length} probes · ${result.config.writer_model} → ${result.config.reader_model}`;
   $("totals").replaceChildren();
   for (const [condition, total] of Object.entries(result.totals || {})) {
     const row = document.createElement("tr");
@@ -121,13 +121,15 @@ async function showRun(id) {
   link.target = "_blank";
   link.textContent = "Inspect complete run JSON ↗";
   $("trials").append(link);
+  await loadNamespaces(result.cases?.[0]?.namespace);
 }
-async function loadNamespaces() {
+async function loadNamespaces(preferred) {
   const rows = await api("/api/namespaces");
+  const selected = preferred || $("namespaces").value || rows[0]?.name;
   options(
     $("namespaces"),
     rows.map((n) => [n.name, `${n.name} · revision ${n.revision}`]),
-    rows.at(-1)?.name,
+    selected,
   );
   if (rows.length) await showNamespace($("namespaces").value);
 }
@@ -199,9 +201,9 @@ async function poll() {
     if (job.status === "completed" || job.status === "failed") {
       activeJob = null;
       $("start").disabled = false;
-      if (job.error) $("status").textContent = job.error;
+      $("status").textContent =
+        job.error || `Completed · ${job.trials || 0} probes saved. Select a trial to inspect its context and response.`;
       await loadRuns(job.run_id);
-      await loadNamespaces();
     } else {
       if (job.run_id) await showRun(job.run_id);
       setTimeout(poll, 2000);
@@ -216,6 +218,6 @@ $("runs").addEventListener("change", () => showRun($("runs").value));
 $("namespaces").addEventListener("change", () =>
   showNamespace($("namespaces").value),
 );
-Promise.all([loadModels(), loadRuns(), loadNamespaces()]).catch((error) => {
+Promise.all([loadModels(), loadRuns()]).catch((error) => {
   $("status").textContent = error.message;
 });
