@@ -27,6 +27,14 @@ allowance enforcement through the dashboard; it does not establish a memory-meth
 The current runner emits `state-probe-v4`. To reproduce the original v3 protocol, use the
 [frozen v0.1 source](https://github.com/tzdillehay/compactionlab/tree/ea70abf280a5ad513efe3147e602102df4346cd4).
 
+The next [153-call encoding study](results/representation-2026-10-01/README.md) replays the
+same 4B-written graph into an 8B receiver. Compact packets preserved more budget facts at one
+allowance, but produced no strict-pass gains and one conversation regression. A control using
+the same selected records separates formatting from selection. Recent source history performed
+better on these short tasks. See [findings and next experiment](docs/representation-findings.md).
+This tests recall between model sizes within one family; cross-family and long-horizon recall
+remain unmeasured.
+
 ## Quick start
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
@@ -71,6 +79,18 @@ prompt token counts are audited against the runtime. Model/template changes fail
 recalibration. This supported Qwen chat renderer is not a general tokenizer for every LLM.
 
 ## Run the test without the interface
+
+Replay frozen public memory without invoking the writer:
+
+```sh
+uv run compactionlab prepare-tokenizer --model qwen3:8b
+uv run compactionlab replay --source results/token-budget-2026-10-01/1b62ebbc316d.json \
+  --budgets 128 256 384 512 --seeds 42 43 44
+```
+
+This emits `representation-v1`. Saved results appear in the dashboard, grouped by workflow and
+allowance. HTTP context requests and MCP `context_query` also accept `mode: "compact"`.
+The original verbose default remains available. See the [encoding protocol](docs/representation.md).
 
 ```sh
 uv run compactionlab evaluate --writer qwen3:4b --reader qwen3:8b --repetitions 1

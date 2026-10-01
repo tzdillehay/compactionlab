@@ -59,7 +59,10 @@
             <tr>
               <td>POST</td>
               <td>/api/namespaces/{name}/context</td>
-              <td>Retrieve plain or structured context</td>
+              <td>
+                Retrieve plain, verbose structured, or compact shared-source
+                context
+              </td>
             </tr>
             <tr>
               <td>POST</td>
@@ -118,7 +121,9 @@
 {"query": "contact method", "mode": "structured", "byte_budget": 6000}</pre>
         <p>
           POST this JSON to /api/namespaces/demo/context. The result includes
-          text, byte count, record IDs, omitted count and snapshot revision.
+          text, byte count, record IDs, omitted count and snapshot revision. Use
+          mode "compact" for sparse records and a shared source table. It
+          preserves source text and dependency groups; empty fields are omitted.
         </p>
         <p class="note">
           This service is for one trusted local user. Namespace names do not

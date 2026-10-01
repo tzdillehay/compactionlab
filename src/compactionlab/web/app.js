@@ -5,6 +5,8 @@ const labels = {
   summary: "LLM summary",
   plain: "Plain records",
   structured: "State + evidence",
+  compact: "Compact shared sources",
+  compact_fixed: "Compact · same selected records",
 };
 let activeJob = null;
 let qualificationJob = null;
@@ -79,7 +81,7 @@ async function loadRuns(preferred) {
     $("runs"),
     rows.map((r) => [
       r.id,
-      `${r.config.writer_model} → ${r.config.reader_model} · ${r.id}`,
+      `${r.config.writer_model || "Frozen 4B memory"} → ${r.config.reader_model} · ${r.id}`,
     ]),
     preferred || rows[0]?.id,
   );
@@ -87,11 +89,54 @@ async function loadRuns(preferred) {
 }
 async function showRun(id) {
   const result = await api(`/api/runs/${id}`);
-  const allowance = result.config.token_budget
-    ? `${result.config.token_budget.toLocaleString()} historical tokens`
-    : `${result.config.byte_budget.toLocaleString()} historical bytes`;
+  const replay = result.protocol === "representation-v1";
+  const allowance = replay
+    ? `${result.config.budgets.join(", ")} historical tokens`
+    : result.config.token_budget
+      ? `${result.config.token_budget.toLocaleString()} historical tokens`
+      : `${result.config.byte_budget.toLocaleString()} historical bytes`;
   $("run-meta").textContent =
-    `${result.status} · ${result.protocol} · ${allowance} · ${result.trials.length} probes · ${result.config.writer_model} → ${result.config.reader_model}`;
+    `${result.status} · ${result.protocol} · ${allowance} · ${result.trials.length}${replay ? `/${result.planned_trials}` : ""} probes saved · ${result.config.writer_model || result.frozen_writer?.name} → ${result.config.reader_model}`;
+  $("replay-results").hidden = !replay;
+  $("replay-totals").replaceChildren();
+  if (replay) {
+    const passCount = (rows) =>
+      `${rows.filter((t) => t.status === "graded" && t.grade.passed).length}/${result.config.seeds.length}${rows.length < result.config.seeds.length ? ` · ${rows.length} saved` : ""}`;
+    for (const task of result.cases) {
+      for (const budget of result.config.budgets) {
+        const row = document.createElement("tr");
+        cell(row, task.case.replaceAll("_", " "));
+        cell(row, budget);
+        for (const condition of [
+          "structured",
+          "compact",
+          "compact_fixed",
+          "recent_history",
+        ]) {
+          cell(
+            row,
+            passCount(
+              result.trials.filter(
+                (t) =>
+                  t.case === task.case &&
+                  t.token_budget === budget &&
+                  t.condition === condition,
+              ),
+            ),
+          );
+        }
+        cell(
+          row,
+          passCount(
+            result.trials.filter(
+              (t) => t.case === task.case && t.condition === "full_history",
+            ),
+          ),
+        );
+        $("replay-totals").append(row);
+      }
+    }
+  }
   $("totals").replaceChildren();
   for (const [condition, total] of Object.entries(result.totals || {})) {
     const row = document.createElement("tr");
@@ -115,7 +160,7 @@ async function showRun(id) {
     const detail = document.createElement("details");
     const summary = document.createElement("summary");
     const passed = trial.grade?.passed;
-    summary.textContent = `${trial.case} · ${labels[trial.condition]} · ${trial.status === "graded" ? (passed ? "PASS" : "FAIL") : trial.status} · ${trial.context_bytes ?? 0} bytes`;
+    summary.textContent = `${trial.case} · ${labels[trial.condition]} · ${trial.status === "graded" ? (passed ? "PASS" : "FAIL") : trial.status} · ${replay ? `${trial.token_budget ?? "full"} tokens · seed ${trial.seed} · ` : ""}${trial.context_bytes ?? 0} bytes`;
     summary.className = passed ? "pass" : "fail";
     detail.append(summary);
     const pre = document.createElement("pre");
@@ -130,6 +175,8 @@ async function showRun(id) {
         output_tokens: trial.model?.output_tokens,
         prompt_accounting_match: trial.model?.prompt_accounting_match,
         wall_seconds: trial.model?.wall_seconds,
+        record_ids: trial.retrieval?.record_ids || trial.record_ids,
+        fidelity_verified: trial.fidelity_verified,
       },
       null,
       2,

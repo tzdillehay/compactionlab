@@ -2,11 +2,15 @@ import hashlib
 import json
 from pathlib import Path
 
-from compactionlab.experiment import aggregate
+from compactionlab.experiment import READER_SYSTEM, aggregate, continuation_schema
+from compactionlab.fixtures import load_case
 from compactionlab.grading import grade
+from compactionlab.packets import expand_packet
 from compactionlab.qualification import summarize
 from compactionlab.qualification_cases import generate_cases, grade_qualification
-from compactionlab.schemas import Continuation, QualificationRequest
+from compactionlab.representation import CONDITIONS, FROZEN_SHA256, load_frozen
+from compactionlab.representation import summarize as summarize_representation
+from compactionlab.schemas import Continuation, QualificationRequest, RepresentationRequest
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -106,3 +110,82 @@ def test_published_token_stress_smoke_preserves_errors_and_enforces_allowance():
         if trial["status"] == "graded":
             answer = Continuation.model_validate(trial["model"]["parsed"])
             assert trial["grade"] == grade(trial["case"], answer)
+
+
+def test_published_encoding_replay_integrity_pairing_fidelity_and_grades():
+    folder = ROOT / "results/representation-2026-10-01"
+    manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+    for name, expected in manifest["sha256"].items():
+        assert hashlib.sha256((folder / name).read_bytes()).hexdigest() == expected
+    result = json.loads((folder / f"{manifest['run_ids'][0]}.json").read_text(encoding="utf-8"))
+    config = RepresentationRequest.model_validate(result["config"])
+    frozen = load_frozen(ROOT / "results/token-budget-2026-10-01/1b62ebbc316d.json")
+    originals = {row["case"]: row for row in frozen["cases"]}
+    cases = {case: load_case(case) for case in originals}
+    assert result["protocol"] == "representation-v1" and result["status"] == "completed"
+    assert result["frozen_source"]["sha256"] == FROZEN_SHA256
+    assert result["baseline_parity"] == dict.fromkeys(originals, True)
+    assert result["totals"] == summarize_representation(result["trials"])
+    assert len(result["trials"]) == result["planned_trials"] == 153
+    index = {(t["case"], t["seed"], t["token_budget"], t["condition"]): t for t in result["trials"]}
+    expected = {
+        (case, seed, budget, condition)
+        for case in originals
+        for seed in config.seeds
+        for budget in config.budgets
+        for condition in CONDITIONS
+    } | {(case, seed, None, "full_history") for case in originals for seed in config.seeds}
+    assert set(index) == expected and len(index) == len(result["trials"])
+    for row in result["cases"]:
+        assert row["history"] == originals[row["case"]]["history"]
+        assert row["records"] == originals[row["case"]]["memory_writer"]["parsed"]["records"]
+    for key, trial in index.items():
+        assert len(trial["context"].encode()) == trial["context_bytes"]
+        if trial["token_budget"] is not None and trial["status"] != "packet_error":
+            assert trial["historical_tokens"] <= trial["token_budget"]
+        if trial["condition"] == "compact_fixed":
+            verbose = index[(*key[:3], "structured")]
+            assert trial["record_ids"] == verbose["retrieval"]["record_ids"]
+            assert expand_packet(trial["context"]) == json.loads(verbose["context"])
+        if trial["condition"] == "compact":
+            units = expand_packet(trial["context"])
+            ids = {unit["id"] for unit in units}
+            assert trial["retrieval"]["record_ids"] == [unit["id"] for unit in units]
+            assert all(set(unit["depends_on"]) <= ids for unit in units)
+            records = {
+                record["id"]: record
+                for record in originals[trial["case"]]["memory_writer"]["parsed"]["records"]
+            }
+            superseded = {
+                identifier for record in records.values() for identifier in record["supersedes"]
+            }
+            for unit in units:
+                original = records[unit["id"]]
+                expected_unit = dict(
+                    original,
+                    effective_state="superseded" if unit["id"] in superseded else original["state"],
+                )
+                expected_unit["sources"] = [
+                    e
+                    for e in originals[trial["case"]]["history"]
+                    if e["id"] in original["source_ids"]
+                ]
+                assert unit == expected_unit
+        if trial["condition"] == "full_history":
+            assert json.loads(trial["context"]) == originals[trial["case"]]["history"]
+        if "prompt_tokens" in trial.get("model", {}):
+            assert trial["model"]["prompt_accounting_match"] is True
+            assert trial["model"]["expected_prompt_tokens"] == trial["model"]["prompt_tokens"]
+            request = trial["model"]["request"]
+            assert request["options"] == config.reader_settings.options(trial["seed"])
+            assert request["messages"][0] == {"role": "system", "content": READER_SYSTEM}
+            assert len(request["messages"]) == 2
+            assert (
+                json.loads(request["messages"][1]["content"])["historical_context"]
+                == trial["context"]
+            )
+            assert request["format"] == continuation_schema(cases[trial["case"]])
+        if trial["status"] == "graded":
+            assert trial["grade"] == grade(
+                trial["case"], Continuation.model_validate(trial["model"]["parsed"])
+            )

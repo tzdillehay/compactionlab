@@ -1,9 +1,12 @@
 import asyncio
+import json
 import os
 import sys
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+
+from compactionlab.packets import expand_packet
 
 
 def test_real_mcp_stdio_round_trip(tmp_path):
@@ -48,6 +51,13 @@ def test_real_mcp_stdio_round_trip(tmp_path):
             )
             assert not context.isError
             assert "Tuesday" in context.content[0].text
+            compact = await session.call_tool(
+                "context_query", {"namespace": "handoff", "query": "deadline", "mode": "compact"}
+            )
+            assert not compact.isError
+            verbose_data = json.loads(context.content[0].text)
+            compact_data = json.loads(compact.content[0].text)
+            assert expand_packet(compact_data["text"]) == json.loads(verbose_data["text"])
             assert (tmp_path / "memory.sqlite3").is_file()
 
     asyncio.run(exercise())

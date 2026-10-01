@@ -11,6 +11,13 @@ token counters, historical-token allowances, and parameterized receiver qualific
 full-history/minimal-source controls and a deterministic draft calculator. This qualifies declared
 state reconstruction only; actual tool execution remains a later gate. See [protocol](qualification.md).
 
+The follow-up `representation-v1` study freezes the same model-written graph and compares
+verbose packets, compact shared-source packets, a fixed-selection encoding control, recent
+history, and full history across four allowances and three seeds. It finds partial factual
+gains and a strict conversation regression, without a complete-task gain from compact encoding.
+See [measured findings](representation-findings.md). Source-priority retrieval and unfinished
+obligations now deserve testing before further packet-size optimization.
+
 ## Next controlled study
 
 1. Separate fact provenance from completion evidence explicitly in the output schema. Requalify
@@ -20,6 +27,10 @@ state reconstruction only; actual tool execution remains a later gate. See [prot
    repeated compactions, and separate
    retrieval/tool costs. Compare compact source spans with verbose record metadata under the same
    historical allowance, reporting total inference and memory-building cost separately.
+   First compare source-aware ranking with current lexical ranking on new correction/no-change
+   pairs, preserving the encoding controls and a recent-event baseline. Measure factual recall,
+   unfinished actions and unsafe completion claims separately. Stronger readers and a second
+   model family should use paired full-source controls; changing receivers changes the study.
 3. Compare stronger existing external-memory systems through adapters; cite their mechanisms.
 4. Add true app-building continuations in disposable sandboxes with independent acceptance tests.
 5. Extend conversation, research, project planning, and fully specified multi-period debt snowball

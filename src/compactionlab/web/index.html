@@ -157,6 +157,38 @@
           </select>
         </div>
         <div id="run-meta" class="muted"></div>
+        <div id="replay-results" hidden>
+          <h3>Frozen memory: compare within each allowance</h3>
+          <p class="note">
+            The same 4B-written records go to an 8B receiver. Compact format
+            shares original sources and omits empty fields. The fixed-selection
+            control keeps exactly the verbose method's records. Cells are passes
+            / planned; errors count as failures. Full-history results repeat as
+            a reference, with no history ceiling. Three seeds repeat the same
+            task and do not establish general superiority. Compare outcomes
+            after the run completes; running cells show saved progress.
+          </p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Workflow</th>
+                  <th>Tokens</th>
+                  <th>Verbose</th>
+                  <th>Compact</th>
+                  <th>Fixed selection</th>
+                  <th>Recent</th>
+                  <th>Full reference</th>
+                </tr>
+              </thead>
+              <tbody id="replay-totals"></tbody>
+            </table>
+          </div>
+          <p class="note">
+            The totals below pool allowances as a coverage overview. Use the
+            rows above to compare methods under the same conditions.
+          </p>
+        </div>
         <div class="table-scroll">
           <table>
             <thead>

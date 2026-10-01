@@ -1,0 +1,16 @@
+{
+  "protocol": "representation-v1",
+  "run_ids": [
+    "18fbde355da7"
+  ],
+  "source_commit": "aaeb24a3b32cd5b28b537a0ec82fde2f8caf1e8e",
+  "sha256": {
+    "18fbde355da7.json": "8a5a841db965f5cf8cd96c524693479f0713231b014f63f587134c9f149d05a2"
+  },
+  "frozen_source": {
+    "id": "1b62ebbc316d",
+    "sha256": "c50231360180c09de5aee8a175a741e427b55793406ce2d16ff751dd2ab3cc13"
+  },
+  "hardware_note": "Apple M5 Pro, 24 GB unified memory; Ollama 0.35.0, Q4_K_M, Metal",
+  "scope": "Development encoding ablation of three known checkpoints; seeds are repeats"
+}

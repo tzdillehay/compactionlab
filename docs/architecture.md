@@ -42,6 +42,18 @@ and its dependencies is admitted as a whole unit only if it fits the UTF-8 byte 
 response includes omitted count and selected IDs. Large source events can make a useful record
 too expensive to include; this is an observable failure mode rather than hidden truncation.
 
+Compact mode uses the same ranking, active-root filter and atomic dependency expansion as
+structured mode. It omits empty metadata fields and shares a chronological table of original
+source events without shortening their text. An offline decoder verifies that the packet
+reconstructs the exact selected verbose records. Fitting different records into the allowance
+can still help or hurt a receiver. The frozen [encoding study](representation.md) includes a
+fixed-selection control to distinguish this effect from representation changes.
+
+The public context API/MCP use byte ceilings. Research runners can additionally enforce
+historical-token ceilings with a prepared, runtime-calibrated receiver tokenizer. This counts
+the escaped context string inserted into the prompt; it is separate from full input and output
+capacity checks.
+
 There are no embeddings or graph database dependencies in this slice. Relationship links are
 stored in JSON. Their representation can later be compared with graph/vector retrieval without
 changing the external interface.
