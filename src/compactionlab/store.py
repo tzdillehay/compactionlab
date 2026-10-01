@@ -157,7 +157,11 @@ class Store:
         with self.connect() as db:
             return [dict(row) for row in db.execute("SELECT * FROM namespaces ORDER BY name")]
 
-    def context(self, namespace: str, request: ContextRequest) -> dict:
+    def context(
+        self, namespace: str, request: ContextRequest, *, token_budget=None, counter=None
+    ) -> dict:
+        if token_budget is not None and counter is None:
+            raise ValueError("Token-bounded retrieval requires a calibrated counter")
         snapshot = self.snapshot(namespace)
         records = snapshot["records"]
         by_id = {record["id"]: record for record in records}
@@ -211,7 +215,12 @@ class Store:
             additions = [unit for unit in rendered if unit["id"] not in included]
             candidate = units + additions
             encoded = json.dumps(candidate, ensure_ascii=False, separators=(",", ":"))
-            if len(encoded.encode()) <= request.byte_budget:
+            fits = (
+                counter.history_tokens(encoded) <= token_budget
+                if token_budget is not None
+                else len(encoded.encode()) <= request.byte_budget
+            )
+            if fits:
                 units = candidate
                 included.update(unit["id"] for unit in additions)
         text = json.dumps(units, ensure_ascii=False, separators=(",", ":"))
@@ -221,7 +230,9 @@ class Store:
             "mode": request.mode,
             "text": text,
             "bytes": len(text.encode()),
-            "byte_budget": request.byte_budget,
+            "byte_budget": request.byte_budget if token_budget is None else None,
+            "token_budget": token_budget,
+            "historical_tokens": counter.history_tokens(text) if counter else None,
             "record_ids": [unit["id"] for unit in units],
             "omitted_records": len(by_id.keys() - included),
         }

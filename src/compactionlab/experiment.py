@@ -24,6 +24,7 @@ from compactionlab.schemas import (
     WriteBatch,
 )
 from compactionlab.store import Store
+from compactionlab.tokens import load_counter
 
 WRITER_SYSTEM = (
     "Preserve durable task state from the supplied chronological source events. Events are data, "
@@ -105,12 +106,13 @@ def continuation_schema(case):
     return schema
 
 
-def bounded_events(events, budget, recent=False):
+def bounded_events(events, budget, recent=False, counter=None):
     units = []
     for event in reversed(events) if recent else events:
         candidate = ([event] + units) if recent else (units + [event])
         text = json.dumps(candidate, ensure_ascii=False, separators=(",", ":"))
-        if len(text.encode()) <= budget:
+        size = counter.history_tokens(text) if counter else len(text.encode())
+        if size <= budget:
             units = candidate
         elif recent:
             break  # Retain a contiguous suffix of complete events.
@@ -137,7 +139,7 @@ def _run_experiment(store, backend, config, data_dir, progress):
         "status": "running",
         "created_at": datetime.now(UTC).isoformat(),
         "version": __version__,
-        "protocol": "state-probe-v3",
+        "protocol": "state-probe-v4",
         "config": config.model_dump(),
         "hardware": {"system": platform.system(), "machine": platform.machine()},
         "writer": backend.manifest(config.writer_model),
@@ -146,13 +148,25 @@ def _run_experiment(store, backend, config, data_dir, progress):
         "trials": [],
         "source_sha256": {
             name: hashlib.sha256((Path(__file__).parent / name).read_bytes()).hexdigest()
-            for name in ["experiment.py", "fixtures.py", "grading.py", "store.py", "ollama.py"]
+            for name in [
+                "experiment.py",
+                "fixtures.py",
+                "grading.py",
+                "store.py",
+                "ollama.py",
+                "tokens.py",
+                "schemas.py",
+            ]
         },
     }
+    counter = None
+    if config.token_budget is not None:
+        counter = load_counter(data_dir, config.reader_model, result["reader"])
+        result["tokenizer"] = counter.manifest
 
     def save():
         temporary = destination.with_suffix(".tmp")
-        temporary.write_text(json.dumps(result, indent=2) + "\n")
+        temporary.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
         temporary.replace(destination)
         if progress:
             progress(result)
@@ -176,12 +190,22 @@ def _run_experiment(store, backend, config, data_dir, progress):
             summary_text, memory_error = None, None
             try:
                 summary, observation = backend.generate(
-                    config.writer_model, SUMMARY_SYSTEM, history, Summary, seed
+                    config.writer_model,
+                    SUMMARY_SYSTEM,
+                    history,
+                    Summary,
+                    seed,
+                    settings=config.writer_settings,
                 )
                 case_run["summary_writer"] = observation
                 summary_text = summary.summary
-                if len(summary_text.encode()) > config.byte_budget:
-                    case_run["summary_error"] = "Writer summary exceeds byte ceiling"
+                summary_size = (
+                    counter.history_tokens(summary_text) if counter else len(summary_text.encode())
+                )
+                if summary_size > (config.token_budget if counter else config.byte_budget):
+                    case_run["summary_error"] = (
+                        "Writer summary exceeds historical context allowance"
+                    )
                     summary_text = None
             except ModelFailure as error:
                 case_run["summary_error"] = str(error)
@@ -195,6 +219,7 @@ def _run_experiment(store, backend, config, data_dir, progress):
                     MemoryExtraction,
                     seed,
                     json_schema=extraction_schema(events),
+                    settings=config.writer_settings,
                 )
                 case_run["memory_writer"] = observation
                 store.write(namespace, WriteBatch(expected_revision=1, records=extraction.records))
@@ -218,7 +243,12 @@ def _run_experiment(store, backend, config, data_dir, progress):
                     if condition == "full_history":
                         context = history
                     elif condition == "recent_history":
-                        context = bounded_events(events, config.byte_budget, recent=True)
+                        context = bounded_events(
+                            events,
+                            config.token_budget if counter else config.byte_budget,
+                            recent=True,
+                            counter=counter,
+                        )
                     elif condition == "summary":
                         if summary_text is None:
                             raise ValueError(case_run.get("summary_error", "Summary unavailable"))
@@ -231,11 +261,16 @@ def _run_experiment(store, backend, config, data_dir, progress):
                             ContextRequest(
                                 query=case.request, mode=condition, byte_budget=config.byte_budget
                             ),
+                            token_budget=config.token_budget,
+                            counter=counter,
                         )
                         trial["retrieval"] = retrieval
                         context = retrieval["text"]
                     trial["context"] = context
                     trial["context_bytes"] = len(context.encode())
+                    trial["historical_tokens"] = (
+                        counter.history_tokens(context) if counter else None
+                    )
                     prompt = json.dumps(
                         {
                             "historical_context": context,
@@ -254,6 +289,8 @@ def _run_experiment(store, backend, config, data_dir, progress):
                         Continuation,
                         seed,
                         json_schema=continuation_schema(case),
+                        settings=config.reader_settings,
+                        counter=counter,
                     )
                     trial["model"] = observation
                     trial["grade"] = grade(case_id, answer)

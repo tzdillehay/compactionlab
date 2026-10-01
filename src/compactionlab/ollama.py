@@ -7,6 +7,8 @@ import time
 import httpx
 from pydantic import BaseModel
 
+from compactionlab.schemas import InferenceSettings
+
 
 class ModelFailure(RuntimeError):
     def __init__(self, message: str, observation: dict | None = None, kind="backend_error"):
@@ -54,26 +56,32 @@ class Ollama:
         schema: type[BaseModel],
         seed: int,
         json_schema: dict | None = None,
+        *,
+        settings: InferenceSettings | None = None,
+        counter=None,
     ):
+        settings = settings or InferenceSettings()
         payload = {
             "model": model,
             "stream": False,
-            "think": False,
+            "think": settings.thinking,
             "format": json_schema or schema.model_json_schema(),
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": prompt},
             ],
-            "options": {
-                "seed": seed,
-                "temperature": 0.7,
-                "top_p": 0.8,
-                "top_k": 20,
-                "num_ctx": 8192,
-                "num_predict": 2048,
-            },
+            "options": settings.options(seed),
             "keep_alive": "5m",
         }
+        expected_tokens = None
+        if counter is not None:
+            expected_tokens = counter.chat_tokens(system, prompt, settings.thinking)
+            if expected_tokens + settings.max_output_tokens > settings.context_tokens:
+                raise ModelFailure(
+                    "Input plus output allowance exceeds context capacity",
+                    {"request": payload, "expected_prompt_tokens": expected_tokens},
+                    kind="capacity_error",
+                )
         start = time.perf_counter()
         try:
             response = self.client.post("/api/chat", json=payload)
@@ -91,7 +99,19 @@ class Ollama:
             "output_tokens": result.get("eval_count"),
             "load_seconds": result.get("load_duration", 0) / 1e9,
             "inference_seconds": result.get("eval_duration", 0) / 1e9,
+            "expected_prompt_tokens": expected_tokens,
+            "prompt_accounting_match": expected_tokens == result.get("prompt_eval_count")
+            if counter
+            else None,
+            "thinking_text": result.get("message", {}).get("thinking", ""),
+            "prompt_seconds": result.get("prompt_eval_duration", 0) / 1e9,
         }
+        if counter is not None and expected_tokens != result.get("prompt_eval_count"):
+            raise ModelFailure(
+                "Runtime prompt token count differs from calibrated rendering",
+                observation,
+                kind="accounting_error",
+            )
         if result.get("done_reason") == "length":
             raise ModelFailure(
                 "Model response reached its generation limit", observation, kind="output_error"

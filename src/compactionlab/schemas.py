@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class StrictModel(BaseModel):
@@ -56,6 +56,35 @@ class Continuation(StrictModel):
     evidence_ids: list[str] = Field(max_length=20)
 
 
+class InferenceSettings(StrictModel):
+    thinking: bool = False
+    context_tokens: int = Field(default=8192, ge=1024, le=131072)
+    max_output_tokens: int = Field(default=2048, ge=1, le=32768)
+    temperature: float | None = Field(default=None, ge=0, le=2)
+    top_p: float | None = Field(default=None, gt=0, le=1)
+    top_k: int = Field(default=20, ge=1, le=100)
+    min_p: float = Field(default=0, ge=0, le=1)
+
+    @model_validator(mode="after")
+    def reserve_input(self):
+        if self.max_output_tokens >= self.context_tokens:
+            raise ValueError("Output allowance must leave space for model input")
+        return self
+
+    def options(self, seed: int) -> dict:
+        return {
+            "seed": seed,
+            "temperature": self.temperature
+            if self.temperature is not None
+            else (0.6 if self.thinking else 0.7),
+            "top_p": self.top_p if self.top_p is not None else (0.95 if self.thinking else 0.8),
+            "top_k": self.top_k,
+            "min_p": self.min_p,
+            "num_ctx": self.context_tokens,
+            "num_predict": self.max_output_tokens,
+        }
+
+
 class ExperimentRequest(StrictModel):
     writer_model: str = Field(default="qwen3:4b", min_length=1, max_length=100)
     reader_model: str = Field(default="qwen3:8b", min_length=1, max_length=100)
@@ -67,3 +96,31 @@ class ExperimentRequest(StrictModel):
     repetitions: int = Field(default=1, ge=1, le=5)
     byte_budget: int = Field(default=6000, ge=256, le=12000)
     seed: int = Field(default=42, ge=0, le=1000000)
+    token_budget: int | None = Field(default=None, ge=16, le=16000)
+    writer_settings: InferenceSettings = Field(default_factory=InferenceSettings)
+    reader_settings: InferenceSettings = Field(default_factory=InferenceSettings)
+
+    @model_validator(mode="after")
+    def unique_cases(self):
+        if len(set(self.cases)) != len(self.cases):
+            raise ValueError("Cases must be unique")
+        return self
+
+
+class QualificationRequest(StrictModel):
+    model: str = Field(default="qwen3:8b", min_length=1, max_length=100)
+    workflows: list[Literal["release_handoff", "conversation", "budgeting"]] = Field(
+        default_factory=lambda: ["release_handoff", "conversation", "budgeting"],
+        min_length=1,
+        max_length=3,
+    )
+    cases_per_workflow: int = Field(default=20, ge=4, le=40)
+    seed: int = Field(default=20261001, ge=0, le=2147483647)
+    calculator: bool = True
+    settings: InferenceSettings = Field(default_factory=InferenceSettings)
+
+    @model_validator(mode="after")
+    def unique_workflows(self):
+        if len(set(self.workflows)) != len(self.workflows):
+            raise ValueError("Workflows must be unique")
+        return self

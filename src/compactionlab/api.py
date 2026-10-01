@@ -11,15 +11,22 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from compactionlab import __version__
 from compactionlab.experiment import run_experiment
 from compactionlab.ollama import Ollama
-from compactionlab.schemas import ContextRequest, ExperimentRequest, WriteBatch
+from compactionlab.qualification import run_qualification
+from compactionlab.schemas import (
+    ContextRequest,
+    ExperimentRequest,
+    QualificationRequest,
+    WriteBatch,
+)
 from compactionlab.store import RevisionConflict, Store
 
 
 def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
     store = Store(data_dir / "memory.sqlite3")
-    app = FastAPI(title="CompactionLab", version="0.1.0", docs_url=None, redoc_url=None)
+    app = FastAPI(title="CompactionLab", version=__version__, docs_url=None, redoc_url=None)
     app.add_middleware(
         TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"]
     )
@@ -63,7 +70,7 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
 
     @app.get("/api/health")
     def health():
-        return {"status": "ok", "service": "compactionlab", "version": "0.1.0"}
+        return {"status": "ok", "service": "compactionlab", "version": __version__}
 
     @app.get("/api/models")
     def models():
@@ -91,7 +98,7 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
     def context(namespace: str, query: ContextRequest):
         return store.context(namespace, query)
 
-    def work(job_id, config):
+    def work(job_id, config, qualification=False):
         backend = Ollama(ollama_url)
         try:
 
@@ -103,7 +110,11 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
                     "cases": len(result["cases"]),
                 }
 
-            result = run_experiment(store, backend, config, data_dir, progress=update)
+            result = (
+                run_qualification(backend, config, data_dir, progress=update)
+                if qualification
+                else run_experiment(store, backend, config, data_dir, progress=update)
+            )
             update(result)
         except Exception as error:
             jobs[job_id] = {"status": "failed", "error": str(error)}
@@ -135,6 +146,46 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
             raise HTTPException(404, "Job not found; completed results persist under /api/runs")
         return jobs[job_id]
 
+    @app.post("/api/qualification/jobs", status_code=202)
+    def start_qualification(config: QualificationRequest, tasks: BackgroundTasks):
+        backend = Ollama(ollama_url)
+        try:
+            if config.model not in {model["name"] for model in backend.models()}:
+                raise ValueError("Choose an installed local model")
+        finally:
+            backend.close()
+        if not busy.acquire(blocking=False):
+            raise HTTPException(409, "An experiment is already running")
+        job_id = uuid.uuid4().hex[:12]
+        jobs[job_id] = {"status": "queued", "trials": 0}
+        tasks.add_task(work, job_id, config, True)
+        return {"job_id": job_id}
+
+    @app.get("/api/qualifications")
+    def qualifications():
+        paths = sorted(
+            (data_dir / "qualifications").glob("*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )[:30]
+        return [
+            {
+                key: value.get(key)
+                for key in ["id", "created_at", "status", "config", "totals", "qualified"]
+            }
+            for path in paths
+            if (value := json.loads(path.read_text(encoding="utf-8")))
+        ]
+
+    @app.get("/api/qualifications/{run_id}")
+    def qualification_result(run_id: str):
+        if not re.fullmatch(r"[a-f0-9]{12}", run_id):
+            raise HTTPException(400, "Invalid qualification ID")
+        path = data_dir / "qualifications" / f"{run_id}.json"
+        if not path.is_file():
+            raise HTTPException(404, "Qualification not found")
+        return json.loads(path.read_text(encoding="utf-8"))
+
     @app.get("/api/runs")
     def runs():
         paths = sorted(
@@ -142,7 +193,7 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
         )[:30]
         summaries = []
         for path in paths:
-            value = json.loads(path.read_text())
+            value = json.loads(path.read_text(encoding="utf-8"))
             summaries.append(
                 {key: value.get(key) for key in ["id", "created_at", "status", "config", "totals"]}
             )
@@ -155,6 +206,6 @@ def create_app(data_dir: Path, ollama_url="http://127.0.0.1:11434"):
         path = data_dir / "runs" / f"{run_id}.json"
         if not path.is_file():
             raise HTTPException(404, "Run not found")
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
 
     return app

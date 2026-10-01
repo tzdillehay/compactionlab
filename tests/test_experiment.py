@@ -23,7 +23,9 @@ class RecordingBackend:
     def manifest(self, name):
         return {"name": name, "digest": "offline-test-only"}
 
-    def generate(self, model, system, prompt, schema, seed, json_schema=None):
+    def generate(
+        self, model, system, prompt, schema, seed, json_schema=None, *, settings=None, counter=None
+    ):
         self.calls.append(
             {
                 "model": model,
@@ -31,6 +33,7 @@ class RecordingBackend:
                 "prompt": prompt,
                 "seed": seed,
                 "schema": json_schema,
+                "settings": settings.model_dump() if settings else None,
             }
         )
         if schema is Summary:
@@ -62,7 +65,7 @@ def test_fresh_conditions_share_contract_and_failures_are_retained(tmp_path):
         ),
         tmp_path,
     )
-    assert result["protocol"] == "state-probe-v3"
+    assert result["protocol"] == "state-probe-v4"
     assert len(result["trials"]) == 5
     assert all(t["status"] == "graded" and not t["grade"]["passed"] for t in result["trials"])
     calls = [call for call in backend.calls if call["model"] == "reader"]
@@ -123,3 +126,27 @@ def test_experiments_are_serialized_across_clients(tmp_path):
                 ExperimentRequest(cases=["conversation"]),
                 tmp_path,
             )
+
+
+def test_all_compressed_conditions_enforce_serialized_token_allowance(prepared_counter, tmp_path):
+    class Backend(RecordingBackend):
+        def manifest(self, name):
+            return prepared_counter.manifest["runtime"]
+
+    backend = Backend()
+    result = run_experiment(
+        Store(tmp_path / "db"),
+        backend,
+        ExperimentRequest(cases=["conversation"], token_budget=100),
+        tmp_path,
+    )
+    assert result["tokenizer"]["scope"] == "offline-test-only"
+    for trial in result["trials"]:
+        if trial["status"] == "graded":
+            assert trial["historical_tokens"] == prepared_counter.history_tokens(trial["context"])
+            if trial["condition"] != "full_history":
+                assert trial["historical_tokens"] <= 100
+    assert (
+        next(t for t in result["trials"] if t["condition"] == "full_history")["historical_tokens"]
+        > 100
+    )
