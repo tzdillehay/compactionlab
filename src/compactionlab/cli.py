@@ -9,6 +9,8 @@ import uvicorn
 
 from compactionlab.api import create_app
 from compactionlab.experiment import run_experiment
+from compactionlab.lifecycle import run_lifecycle
+from compactionlab.lifecycle_types import LifecycleRequest
 from compactionlab.mcp_server import create_server
 from compactionlab.ollama import Ollama
 from compactionlab.qualification import run_qualification
@@ -72,6 +74,13 @@ def main():
     replay.add_argument("--budgets", type=int, nargs="+", default=[128, 256, 384, 512])
     replay.add_argument("--seeds", type=int, nargs="+", default=[42, 43, 44])
     inference_arguments(replay, "reader-")
+    lifecycle = commands.add_parser(
+        "lifecycle", help="Test typed task-state retrieval and follow-ups"
+    )
+    lifecycle.add_argument("--reader", default="qwen3:8b")
+    lifecycle.add_argument("--token-budget", type=int, default=512)
+    lifecycle.add_argument("--seed", type=int, default=314159)
+    inference_arguments(lifecycle, "reader-")
     evaluate = commands.add_parser("evaluate", help="Run a real local-model state probe comparison")
     evaluate.add_argument("--writer", default="qwen3:4b")
     evaluate.add_argument("--reader", default="qwen3:8b")
@@ -111,6 +120,14 @@ def main():
             reader_settings=settings_from(args, "reader_"),
         )
         execute(config, data_dir, qualification=False)
+    elif args.command == "lifecycle":
+        config = LifecycleRequest(
+            reader_model=args.reader,
+            token_budget=args.token_budget,
+            seed=args.seed,
+            reader_settings=settings_from(args, "reader_"),
+        )
+        execute(config, data_dir, qualification=False, lifecycle=True)
     elif args.command == "qualify":
         config = QualificationRequest(
             model=args.model,
@@ -129,7 +146,7 @@ def main():
             backend.close()
 
 
-def execute(config, data_dir, qualification, source=None):
+def execute(config, data_dir, qualification, source=None, lifecycle=False):
     backend = Ollama()
     last_count = -1
 
@@ -146,6 +163,10 @@ def execute(config, data_dir, qualification, source=None):
     try:
         if qualification:
             result = run_qualification(backend, config, data_dir, progress)
+        elif lifecycle:
+            result = run_lifecycle(
+                Store(data_dir / "memory.sqlite3"), backend, config, data_dir, progress
+            )
         elif source is not None:
             result = run_representation(
                 Store(data_dir / "memory.sqlite3"), backend, config, source, data_dir, progress
