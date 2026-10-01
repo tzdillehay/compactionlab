@@ -35,7 +35,7 @@ class WriteBatch(StrictModel):
 
 class ContextRequest(StrictModel):
     query: str = Field(min_length=1, max_length=2000)
-    mode: Literal["plain", "structured"] = "structured"
+    mode: Literal["plain", "structured", "compact"] = "structured"
     byte_budget: int = Field(default=6000, ge=256, le=32000)
 
 
@@ -123,4 +123,25 @@ class QualificationRequest(StrictModel):
     def unique_workflows(self):
         if len(set(self.workflows)) != len(self.workflows):
             raise ValueError("Workflows must be unique")
+        return self
+
+
+class RepresentationRequest(StrictModel):
+    reader_model: str = Field(default="qwen3:8b", min_length=1, max_length=100)
+    budgets: list[int] = Field(
+        default_factory=lambda: [128, 256, 384, 512], min_length=1, max_length=6
+    )
+    seeds: list[int] = Field(default_factory=lambda: [42, 43, 44], min_length=1, max_length=5)
+    reader_settings: InferenceSettings = Field(default_factory=InferenceSettings)
+
+    @model_validator(mode="after")
+    def unique_bounded_values(self):
+        if len(set(self.budgets)) != len(self.budgets) or not all(
+            16 <= budget <= 16000 for budget in self.budgets
+        ):
+            raise ValueError("Use unique historical allowances between 16 and 16000 tokens")
+        if len(set(self.seeds)) != len(self.seeds) or not all(
+            0 <= seed <= 1000000 for seed in self.seeds
+        ):
+            raise ValueError("Use unique seeds between 0 and 1000000")
         return self

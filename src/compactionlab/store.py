@@ -6,6 +6,7 @@ import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
+from compactionlab.packets import compact_packet
 from compactionlab.schemas import ContextRequest, WriteBatch
 
 
@@ -191,12 +192,12 @@ class Store:
                     if record["id"] in candidates
                 }
         records = sorted(records, key=lambda r: (ranks.get(r["id"], 1), -r["seq"], r["id"]))
-        if request.mode == "structured":
+        if request.mode in {"structured", "compact"}:
             records = [r for r in records if r["effective_state"] != "superseded"]
         units, included = [], set()
         for record in records:
             group = [record]
-            if request.mode == "structured":
+            if request.mode in {"structured", "compact"}:
                 queue = list(record["depends_on"])
                 while queue:
                     dependency = by_id[queue.pop(0)]
@@ -214,7 +215,11 @@ class Store:
                 rendered = [{"id": record["id"], "kind": record["kind"], "text": record["text"]}]
             additions = [unit for unit in rendered if unit["id"] not in included]
             candidate = units + additions
-            encoded = json.dumps(candidate, ensure_ascii=False, separators=(",", ":"))
+            encoded = (
+                compact_packet(candidate, snapshot["events"])
+                if request.mode == "compact"
+                else json.dumps(candidate, ensure_ascii=False, separators=(",", ":"))
+            )
             fits = (
                 counter.history_tokens(encoded) <= token_budget
                 if token_budget is not None
@@ -223,7 +228,11 @@ class Store:
             if fits:
                 units = candidate
                 included.update(unit["id"] for unit in additions)
-        text = json.dumps(units, ensure_ascii=False, separators=(",", ":"))
+        text = (
+            compact_packet(units, snapshot["events"])
+            if request.mode == "compact"
+            else json.dumps(units, ensure_ascii=False, separators=(",", ":"))
+        )
         return {
             "namespace": namespace,
             "revision": snapshot["revision"],

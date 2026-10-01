@@ -29,8 +29,12 @@ def create_server(data_dir: Path):
         return {"revision": revision}
 
     @server.tool()
-    def context_query(namespace: str, query: str, byte_budget: int = 6000) -> dict:
+    def context_query(
+        namespace: str, query: str, byte_budget: int = 6000, mode: str = "structured"
+    ) -> dict:
         """Retrieve a bounded, sourced context bundle. Returned facts may still be incorrect."""
-        return store.context(namespace, ContextRequest(query=query, byte_budget=byte_budget))
+        return store.context(
+            namespace, ContextRequest(query=query, byte_budget=byte_budget, mode=mode)
+        )
 
     return server

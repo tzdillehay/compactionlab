@@ -12,7 +12,13 @@ from compactionlab.experiment import run_experiment
 from compactionlab.mcp_server import create_server
 from compactionlab.ollama import Ollama
 from compactionlab.qualification import run_qualification
-from compactionlab.schemas import ExperimentRequest, InferenceSettings, QualificationRequest
+from compactionlab.representation import run_representation
+from compactionlab.schemas import (
+    ExperimentRequest,
+    InferenceSettings,
+    QualificationRequest,
+    RepresentationRequest,
+)
 from compactionlab.store import Store
 from compactionlab.tokens import prepare_tokenizer
 
@@ -58,6 +64,14 @@ def main():
         "--workflows", nargs="+", default=["release_handoff", "conversation", "budgeting"]
     )
     inference_arguments(qualify)
+    replay = commands.add_parser(
+        "replay", help="Compare encodings of the frozen public memory graph"
+    )
+    replay.add_argument("--source", type=Path, required=True)
+    replay.add_argument("--reader", default="qwen3:8b")
+    replay.add_argument("--budgets", type=int, nargs="+", default=[128, 256, 384, 512])
+    replay.add_argument("--seeds", type=int, nargs="+", default=[42, 43, 44])
+    inference_arguments(replay, "reader-")
     evaluate = commands.add_parser("evaluate", help="Run a real local-model state probe comparison")
     evaluate.add_argument("--writer", default="qwen3:4b")
     evaluate.add_argument("--reader", default="qwen3:8b")
@@ -76,6 +90,14 @@ def main():
         uvicorn.run(create_app(data_dir), host="127.0.0.1", port=8765, access_log=False)
     elif args.command == "mcp":
         create_server(data_dir).run(transport="stdio")
+    elif args.command == "replay":
+        config = RepresentationRequest(
+            reader_model=args.reader,
+            budgets=args.budgets,
+            seeds=args.seeds,
+            reader_settings=settings_from(args, "reader_"),
+        )
+        execute(config, data_dir, qualification=False, source=args.source)
     elif args.command == "evaluate":
         config = ExperimentRequest(
             writer_model=args.writer,
@@ -107,7 +129,7 @@ def main():
             backend.close()
 
 
-def execute(config, data_dir, qualification):
+def execute(config, data_dir, qualification, source=None):
     backend = Ollama()
     last_count = -1
 
@@ -124,6 +146,10 @@ def execute(config, data_dir, qualification):
     try:
         if qualification:
             result = run_qualification(backend, config, data_dir, progress)
+        elif source is not None:
+            result = run_representation(
+                Store(data_dir / "memory.sqlite3"), backend, config, source, data_dir, progress
+            )
         else:
             result = run_experiment(
                 Store(data_dir / "memory.sqlite3"), backend, config, data_dir, progress

@@ -15,6 +15,14 @@ def test_http_memory_lifecycle_and_conflicts(tmp_path):
         assert client.post("/api/namespaces/demo/records", json=body).status_code == 409
         context = client.post("/api/namespaces/demo/context", json={"query": "contact"}).json()
         assert context["record_ids"] == ["r"]
+        compact = client.post(
+            "/api/namespaces/demo/context", json={"query": "contact", "mode": "compact"}
+        ).json()
+        import json
+
+        from compactionlab.packets import expand_packet
+
+        assert expand_packet(compact["text"]) == json.loads(context["text"])
         assert client.get("/api/namespaces/missing").status_code == 404
         assert (
             client.post(
