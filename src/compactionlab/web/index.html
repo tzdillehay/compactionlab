@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompactionLab · Context between models</title><link rel="stylesheet" href="/static/style.css"></head>
+<body><main>
+<header><a class="brand" href="/">◈ CompactionLab</a><span class="pill">LOCAL RESEARCH PREVIEW</span></header>
+<section class="intro"><p class="eyebrow">CONTEXT BETWEEN MODELS</p><h1>Keep the work.<br>Change the model.</h1>
+<p class="lede">Inspect what memory preserves, what a fresh model recalls, and where a handoff fails.</p></section>
+<section class="panel"><div class="section-title"><h2>Run a comparison</h2><span id="connection" class="muted">Connecting to local models…</span></div>
+<form id="experiment"><div class="controls">
+<label>Memory writer<select id="writer" required></select></label>
+<label>Receiving model<select id="reader" required></select></label>
+<label>Task<select id="cases"><option value="all">All three tasks</option><option value="release_handoff">Release handoff</option><option value="conversation">Conversation corrections</option><option value="budgeting">Snowball budget</option></select></label>
+<label>History ceiling<select id="budget"><option value="6000">6,000 bytes</option><option value="2000">2,000 bytes</option><option value="1000">1,000 bytes</option></select></label>
+<label>Repetitions<select id="repetitions"><option>1</option><option>3</option><option>5</option></select></label>
+<button id="start" type="submit">Run locally ↗</button></div></form>
+<p class="note">Fresh state probes · Five memory methods · No paid APIs. Equal byte ceilings are not equal token budgets. Full history is an uncompressed reference.</p>
+<div id="status" role="status" aria-live="polite">Ready when local models are available.</div></section>
+<section class="panel"><div class="section-title"><h2>Results</h2><select id="runs" aria-label="Select saved run"><option>No saved runs</option></select></div>
+<div id="run-meta" class="muted"></div><div class="table-scroll"><table><thead><tr><th>Memory method</th><th>Passed / graded</th><th>Fact accuracy</th><th>Errors</th></tr></thead><tbody id="totals"></tbody></table></div>
+<p class="note">A pass requires current facts, necessary next actions, and honest completion claims. These are small synthetic tasks; results do not establish general superiority.</p>
+<div id="trials"></div></section>
+<section class="panel"><div class="section-title"><h2>Context matrix</h2><select id="namespaces" aria-label="Select task memory"><option>No memory yet</option></select></div>
+<p class="note">Inspect model-written records and original sources. Supersession is a writer judgment, not a guarantee of truth.</p>
+<div class="table-scroll"><table><thead><tr><th>Record</th><th>Kind / state</th><th>Remembered context</th><th>Scope / sources</th></tr></thead><tbody id="records"></tbody></table></div></section>
+<footer><span>Open source. Inspectable by design.</span><a href="https://github.com/tzdillehay/compactionlab" target="_blank" rel="noreferrer">GitHub ↗</a><a href="/docs">API reference ↗</a></footer>
+</main><script src="/static/app.js"></script></body></html>
